@@ -1,8 +1,5 @@
-import os
-from pathlib import Path
-from unittest.mock import MagicMock
 import pytest
-from mcp_server import clean_code_output, draft_code, SubLLMClient
+from mcp_server import clean_code_output, draft_code
 
 def test_clean_code_output_removes_markdown():
     dirty = "```python\ndef hello():\n    pass\n```"

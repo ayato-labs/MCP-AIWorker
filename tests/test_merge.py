@@ -1,6 +1,4 @@
 import unittest
-from pathlib import Path
-import os
 
 # Dummy implementation of merge logic for testing
 def simulate_merge(full_content_lines, generated_code, start_line, end_line):
