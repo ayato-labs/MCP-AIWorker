@@ -1,0 +1,5 @@
+fastmcp
+google-generativeai
+python-dotenv
+requests
+loguru

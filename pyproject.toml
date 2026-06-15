@@ -1,0 +1,21 @@
+[project]
+name = "sub-cheap-mcpaiagent"
+version = "0.1.0"
+description = "An MCP server that delegates code drafting to inexpensive LLMs."
+authors = [{ name = "ayato-labs" }]
+dependencies = [
+    "fastmcp",
+    "google-generativeai",
+    "python-dotenv",
+    "requests",
+    "loguru",
+]
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.scripts]
+sub-cheap-mcp = "mcp_server:mcp.run"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
