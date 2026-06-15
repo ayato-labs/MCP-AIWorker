@@ -5,10 +5,10 @@ description = "An MCP server that delegates code drafting to inexpensive LLMs."
 authors = [{ name = "ayato-labs" }]
 dependencies = [
     "fastmcp",
-    "google-generativeai",
     "python-dotenv",
     "requests",
     "loguru",
+    "google-genai>=2.8.0",
 ]
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,3 +19,13 @@ sub-cheap-mcp = "mcp_server:mcp.run"
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["mcp_server"]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-mock",
+    "ruff",
+]

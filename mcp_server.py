@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 from loguru import logger
-import google.generativeai as genai
+from google import genai
 
 # Load environment variables
 load_dotenv(override=True)
@@ -21,17 +21,17 @@ class SubLLMClient:
     @staticmethod
     def call_gemini(prompt: str) -> str:
         api_key = os.getenv("GOOGLE_API_KEY")
-        model_name = os.getenv("GEMINI_MODEL", "models/gemma-4-31b-it")
+        model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash") # Updated default model name for genai
         if not api_key:
             raise ValueError("GOOGLE_API_KEY is not set in .env")
         
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(model_name)
+        client = genai.Client(api_key=api_key)
         
         logger.info(f"Calling Gemini ({model_name})...")
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.types.GenerationConfig(
+        response = client.models.generate_content(
+            model=model_name,
+            contents=prompt,
+            config=genai.types.GenerateContentConfig(
                 temperature=0.2,
             )
         )
@@ -91,6 +91,10 @@ def draft_code(
         reference_context: Additional code or info for the sub-LLM.
         model: 'gemini' or 'ollama'. Defaults to DEFAULT_MODEL in .env.
     """
+    if start_line is not None and end_line is not None:
+        if start_line > end_line:
+            return "Error: start_line cannot be greater than end_line."
+
     file_path = Path(path)
     target_snippet = ""
     full_content = []
