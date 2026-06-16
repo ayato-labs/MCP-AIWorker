@@ -107,9 +107,9 @@ This project is built entirely on permissive open-source licenses (MIT, Apache 2
 *   **[loguru](https://github.com/Delgan/loguru/blob/master/LICENSE)** (Logging): `MIT License`
 *   **[python-dotenv](https://github.com/theskumar/python-dotenv/blob/main/LICENSE)** (Env Config): `BSD-3-Clause`
 
-> **⚠️ Important Disclaimer: AI Model Weights & API Terms**
-> While this MCP server and its software dependencies are commercially viable, **the licenses and terms of service (TOS) for the actual AI models (weights) and external APIs you connect to are governed by their respective providers.** 
-> For example, if you load models via Ollama (e.g., Llama 3, Gemma) or use Google AI Studio APIs, you must ensure your use case complies with Meta's, Google's, or the respective creator's commercial licensing terms.
+> **⚠️ Important Disclaimer: AI Model Weights, API Terms, and License Verification**
+> 1. **AI Models & APIs**: While this MCP server and its software dependencies are commercially viable, **the licenses and terms of service (TOS) for the actual AI models (weights) and external APIs you connect to are governed by their respective providers.** For example, if you load models via Ollama (e.g., Llama 3, Gemma) or use Google AI Studio APIs, you must ensure your use case complies with Meta's, Google's, or the respective creator's commercial licensing terms.
+> 2. **Final Verification**: While we have made every effort to list the correct licenses for our dependencies, **the ultimate responsibility for verifying and complying with all software and model licenses for your specific business use case rests entirely with you (the user).**
 
 ## ⚖️ License
 
