@@ -17,7 +17,7 @@ else:
         models = genai.list_models()
         found = False
         for m in models:
-            if 'generateContent' in m.supported_generation_methods:
+            if "generateContent" in m.supported_generation_methods:
                 print(f"Name: {m.name}, Display Name: {m.display_name}")
                 if "gemma" in m.name.lower():
                     found = True
