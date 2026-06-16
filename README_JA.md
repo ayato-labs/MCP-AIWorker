@@ -102,9 +102,9 @@
 *   **[loguru](https://github.com/Delgan/loguru/blob/master/LICENSE)** (Logging): `MIT License`
 *   **[python-dotenv](https://github.com/theskumar/python-dotenv/blob/main/LICENSE)** (Env Config): `BSD-3-Clause`
 
-> **⚠️ 免責事項 (Important Disclaimer): AIモデル（重み）とAPI利用規約について**
-> 本MCPサーバーおよび上記の依存ソフトウェアはすべて商用利用可能ですが、**バックエンドとして呼び出す「AIモデル（重みデータ）」や「APIサービス」のライセンスおよび利用規約は、各プロバイダーに依存します。**
-> 例：Ollama経由で使用するローカルモデル（Gemma, Llama等）や、Google AI StudioのAPI規約については、お客様のビジネス要件（MAU上限、商用利用の可否など）に合致するか各自でご確認ください。
+> **⚠️ 免責事項 (Important Disclaimer): AIモデル（重み）、API利用規約、およびライセンスの最終確認について**
+> 1. **AIモデルとAPI**: 本MCPサーバーおよび上記の依存ソフトウェアはすべて商用利用可能なライセンスですが、**バックエンドとして呼び出す「AIモデル（重みデータ）」や「外部APIサービス」のライセンスおよび利用規約は、各プロバイダーに依存します。** 例：Ollama経由で使用するローカルモデル（Gemma, Llama等）や、Google AI StudioのAPI規約については、お客様のビジネス要件（MAU上限、商用利用の可否など）に合致するか各自でご確認ください。
+> 2. **最終確認の責任**: 本ドキュメントのライセンス情報の正確性には万全を期しておりますが、**実際の商用・ビジネス利用におけるすべてのソフトウェアおよびモデルのライセンス適合性に関する「最終的な確認と遵守の責任」は、全面的にお客様（使用者）ご自身にあるものとします。**
 
 ## ⚖️ ライセンス
 
