@@ -95,6 +95,22 @@ When evolving into a managed SaaS platform, we plan to implement:
 - **Intelligent Task Router**: Automatically assessing prompt complexity to route between Tier 1 (Flash) and Tier 2 (Pro/Opus) models to maximize margin and performance.
 - **Automated QA Retry Loops**: Re-rolling failed generation attempts based on static analysis (e.g., Semgrep) before returning the payload to the Main AI.
 
+## 🏢 Commercial & Business Use Ready
+
+This project is built entirely on permissive open-source licenses (MIT, Apache 2.0, BSD), ensuring it can be safely integrated into commercial, enterprise, or proprietary workflows without copyleft (GPL) contamination risks.
+
+**Dependency License Map:**
+*   **[Ollama](https://github.com/ollama/ollama/blob/main/LICENSE)** (Local LLM Server): `MIT License`
+*   **[FastMCP](https://github.com/jlowin/fastmcp/blob/main/LICENSE)** (MCP Framework): `MIT License`
+*   **[google-genai](https://github.com/googleapis/python-genai/blob/main/LICENSE)** (Gemini SDK): `Apache License 2.0`
+*   **[requests](https://github.com/psf/requests/blob/main/LICENSE)** (HTTP Client): `Apache License 2.0`
+*   **[loguru](https://github.com/Delgan/loguru/blob/master/LICENSE)** (Logging): `MIT License`
+*   **[python-dotenv](https://github.com/theskumar/python-dotenv/blob/main/LICENSE)** (Env Config): `BSD-3-Clause`
+
+> **⚠️ Important Disclaimer: AI Model Weights & API Terms**
+> While this MCP server and its software dependencies are commercially viable, **the licenses and terms of service (TOS) for the actual AI models (weights) and external APIs you connect to are governed by their respective providers.** 
+> For example, if you load models via Ollama (e.g., Llama 3, Gemma) or use Google AI Studio APIs, you must ensure your use case complies with Meta's, Google's, or the respective creator's commercial licensing terms.
+
 ## ⚖️ License
 
 MIT License. See [LICENSE](LICENSE) for details.

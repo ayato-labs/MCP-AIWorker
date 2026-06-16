@@ -90,6 +90,22 @@
 - **インテリジェント・タスクルーター**: プロンプトの複雑さを自動評価し、利益率とパフォーマンスを最大化するためにTier 1（Flash等）とTier 2（Pro/Opus等）のモデル間で自動ルーティングを行います。
 - **自動QAリトライループ**: 静的解析（Semgrep等）に基づいてエラーを検知し、メインAIに結果を返す前にサブエージェント内部で自動修正ループを回します。
 
+## 🏢 商用・ビジネス利用への対応 (Commercial & Business Use Ready)
+
+本プロジェクトは、企業のビジネス環境やプロプライエタリなシステム内でも安全にご利用いただけるよう、コピーレフト型ライセンス（GPLなど）を排除し、寛容なオープンソースライセンス（Permissive License: MIT, Apache 2.0, BSD）の技術スタックのみで構築されています。
+
+**依存ソフトウェア・ライセンス一覧:**
+*   **[Ollama](https://github.com/ollama/ollama/blob/main/LICENSE)** (Local LLM Server): `MIT License`
+*   **[FastMCP](https://github.com/jlowin/fastmcp/blob/main/LICENSE)** (MCP Framework): `MIT License`
+*   **[google-genai](https://github.com/googleapis/python-genai/blob/main/LICENSE)** (Gemini SDK): `Apache License 2.0`
+*   **[requests](https://github.com/psf/requests/blob/main/LICENSE)** (HTTP Client): `Apache License 2.0`
+*   **[loguru](https://github.com/Delgan/loguru/blob/master/LICENSE)** (Logging): `MIT License`
+*   **[python-dotenv](https://github.com/theskumar/python-dotenv/blob/main/LICENSE)** (Env Config): `BSD-3-Clause`
+
+> **⚠️ 免責事項 (Important Disclaimer): AIモデル（重み）とAPI利用規約について**
+> 本MCPサーバーおよび上記の依存ソフトウェアはすべて商用利用可能ですが、**バックエンドとして呼び出す「AIモデル（重みデータ）」や「APIサービス」のライセンスおよび利用規約は、各プロバイダーに依存します。**
+> 例：Ollama経由で使用するローカルモデル（Gemma, Llama等）や、Google AI StudioのAPI規約については、お客様のビジネス要件（MAU上限、商用利用の可否など）に合致するか各自でご確認ください。
+
 ## ⚖️ ライセンス
 
 MIT License. 詳細は [LICENSE](LICENSE) をご覧ください。
