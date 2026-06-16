@@ -82,6 +82,18 @@ Our architectural choices are documented to ensure transparency:
 - [ADR-0001: Sub-LLM Selection Strategy](docs/ADR/ADR-0001-selection-of-sub-llm-and-edit-strategy.md)
 - [ADR-0004: Adoption of Google AI Studio API](docs/ADR/ADR-0004-use-google-ai-studio-api.md)
 - [ADR-0005: Rejection of Local MT Models for KISS](docs/ADR/ADR-0005-reject-dedicated-local-translation-models.md)
+- [ADR-0006: Rejection of Internal QA Loops (Semgrep)](docs/ADR/ADR-0006-reject-internal-qa-loops.md)
+- [ADR-0007: Rejection of Automated Task Routing for MVP](docs/ADR/ADR-0007-reject-automated-task-routing-for-mvp.md)
+
+## 🗺️ Roadmap & Future Vision
+
+**Current Phase (MVP for Individual Developers):**
+The project currently relies on explicit `.env` settings for model routing. This is an intentional design choice for a "Bring Your Own Key" (BYOK) environment and local executions. We do not use automated "Task Routers" that might silently upgrade to expensive models or load local models that exceed your hardware's VRAM. This ensures you maintain 100% control over your API costs and local resources.
+
+**Future SaaS Phase:**
+When evolving into a managed SaaS platform, we plan to implement:
+- **Intelligent Task Router**: Automatically assessing prompt complexity to route between Tier 1 (Flash) and Tier 2 (Pro/Opus) models to maximize margin and performance.
+- **Automated QA Retry Loops**: Re-rolling failed generation attempts based on static analysis (e.g., Semgrep) before returning the payload to the Main AI.
 
 ## ⚖️ License
 

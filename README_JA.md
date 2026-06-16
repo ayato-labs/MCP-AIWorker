@@ -77,6 +77,18 @@
 - [ADR-0001: サブLLMの選定戦略](docs/ADR/ADR-0001-selection-of-sub-llm-and-edit-strategy.md)
 - [ADR-0004: Google AI Studio の採用](docs/ADR/ADR-0004-use-google-ai-studio-api.md)
 - [ADR-0005: 専用翻訳モデル不採用の決定（KISS原則）](docs/ADR/ADR-0005-reject-dedicated-local-translation-models.md)
+- [ADR-0006: Semgrep等を用いた内部QAループの不採用](docs/ADR/ADR-0006-reject-internal-qa-loops.md)
+- [ADR-0007: MVPフェーズにおける自動タスクルーティングの不採用](docs/ADR/ADR-0007-reject-automated-task-routing-for-mvp.md)
+
+## 🗺️ ロードマップと将来の展望
+
+**現在のフェーズ (個人開発者向けMVP):**
+現在、モデルのルーティングは `.env` ファイルによる明示的な指定に依存しています。これは、ユーザー自身がAPIキーを持ち込む「BYOK（Bring Your Own Key）」環境やローカル環境での実行を前提とした意図的な設計です。タスクの難易度を自動判定して高価なモデルへ勝手に切り替えたり、マシンのVRAMを超えるモデルをロードしたりする「自動タスクルーター」は導入していません。これにより、ユーザーはAPIコストとローカルリソースを100%制御し続けることができます。
+
+**将来のSaaSフェーズ:**
+マネージドなSaaSプラットフォームへと進化する際には、以下の実装を計画しています：
+- **インテリジェント・タスクルーター**: プロンプトの複雑さを自動評価し、利益率とパフォーマンスを最大化するためにTier 1（Flash等）とTier 2（Pro/Opus等）のモデル間で自動ルーティングを行います。
+- **自動QAリトライループ**: 静的解析（Semgrep等）に基づいてエラーを検知し、メインAIに結果を返す前にサブエージェント内部で自動修正ループを回します。
 
 ## ⚖️ ライセンス
 
