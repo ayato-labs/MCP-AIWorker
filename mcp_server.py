@@ -24,15 +24,33 @@ logger.add("error.log", rotation="10 MB", retention=2, serialize=True, level="ER
 # Sub-LLM Clients
 class SubLLMClient:
     @staticmethod
-    def call_gemini(prompt: str) -> str:
+    def get_gemini_client():
         api_key = os.getenv("GOOGLE_API_KEY")
-        model_name = os.getenv(
-            "GEMINI_MODEL", "gemini-2.5-flash"
-        )  # Updated default model name for genai
         if not api_key:
             raise ValueError("GOOGLE_API_KEY is not set in .env")
+        return genai.Client(api_key=api_key)
 
-        client = genai.Client(api_key=api_key)
+    @staticmethod
+    def call_gemini(prompt: str) -> str:
+        model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+        client = SubLLMClient.get_gemini_client()
+
+        # Dynamic context check
+        try:
+            model_info = client.models.get(model=model_name)
+            max_tokens = model_info.input_token_limit
+
+            token_count_resp = client.models.count_tokens(model=model_name, contents=prompt)
+            current_tokens = token_count_resp.total_tokens
+
+            logger.info(f"Gemini Token usage: {current_tokens}/{max_tokens}")
+
+            if current_tokens > max_tokens:
+                raise ValueError(
+                    f"Prompt exceeds Gemini context limit: {current_tokens} > {max_tokens}"
+                )
+        except Exception as e:
+            logger.warning(f"Could not verify Gemini context limit: {e}")
 
         logger.info(f"Calling Gemini ({model_name})...")
         try:
@@ -55,6 +73,26 @@ class SubLLMClient:
     def call_ollama(prompt: str) -> str:
         base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         model_name = os.getenv("OLLAMA_MODEL", "gemma2:9b")
+
+        # Dynamic context check for Ollama
+        try:
+            show_resp = requests.post(f"{base_url}/api/show", json={"name": model_name}, timeout=5)
+            if show_resp.status_code == 200:
+                # Ollama doesn't always expose max_tokens clearly in 'show',
+                # but we can try to find it or use a safe default from info.
+                # Defaulting to 4096 if not found, many small models start there
+                context_limit = 4096
+
+                # Crude token estimation (chars / 4) if no better way
+                estimated_tokens = len(prompt) // 4
+                logger.info(f"Ollama Estimated Token usage: ~{estimated_tokens}/{context_limit}")
+
+                if estimated_tokens > context_limit:
+                    logger.warning(
+                        f"Prompt might exceed Ollama context limit: ~{estimated_tokens} > {context_limit}"
+                    )
+        except Exception as e:
+            logger.warning(f"Could not verify Ollama context limit: {e}")
 
         logger.info(f"Calling Ollama ({model_name})...")
         try:

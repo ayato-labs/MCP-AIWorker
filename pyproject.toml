@@ -9,6 +9,7 @@ dependencies = [
     "requests",
     "loguru",
     "google-genai>=2.8.0",
+    "tiktoken>=0.13.0",
 ]
 readme = "README.md"
 requires-python = ">=3.10"
