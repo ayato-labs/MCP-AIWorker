@@ -318,8 +318,36 @@ def draft_code(
             return f"Fatal error: {e}"
 
 
+def print_registration_example():
+    """Prints a configuration example for Claude Desktop."""
+    project_dir = Path(__file__).parent.parent.parent.absolute()
+    # Normalize path for Windows JSON (forward slashes are usually safer or double backslashes)
+    path_str = str(project_dir).replace("\\", "/")
+    
+    example = {
+        "mcpServers": {
+            "sub-cheap-mcp": {
+                "command": "uv",
+                "args": [
+                    "--directory",
+                    path_str,
+                    "run",
+                    "sub-cheap-mcp"
+                ]
+            }
+        }
+    }
+    import json
+    logger.info("=== MCP Registration Example for Claude Desktop ===")
+    print("\nCopy the following JSON into your 'claude_desktop_config.json':\n")
+    print(json.dumps(example, indent=2))
+    print("\nLocation: %APPDATA%/Claude/claude_desktop_config.json\n")
+    logger.info("====================================================")
+
+
 if __name__ == "__main__":
     try:
+        print_registration_example()
         mcp.run()
     except Exception:
         logger.exception("MCP Server crashed")
