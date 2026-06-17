@@ -437,17 +437,12 @@ if __name__ == "__main__":
             print(json.dumps(config_example, indent=2))
             print("=" * 60 + "\n")
             # FastMCP uses 'streamable-http' as the transport name internally for this mode
-            mcp.run(transport="streamable-http", port=port, host="::")
+            mcp.run(transport="streamable-http", port=port, host="::", stateless_http=True)
         else:
             logger.info("Starting MCP Server with transport: stdio")
             mcp.run(transport="stdio")
     except Exception:
         logger.exception("MCP Server crashed")
-        if transport == "stdio":
-            pass
-        else:
-            input("Press Enter to exit...")
-")
         if transport == "stdio":
             pass
         else:
