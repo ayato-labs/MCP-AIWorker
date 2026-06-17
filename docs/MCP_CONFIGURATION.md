@@ -48,15 +48,23 @@ Typically located at: `%APPDATA%\Claude\claude_desktop_config.json`
 ```
 *Note: Replace `C:/path/to/Sub_cheap_McpAiAgent` with the absolute path to your repository.*
 
-## 4. Usage
-Once configured, restart Claude Desktop. You will see the `sub-cheap-mcp` tools available (e.g., `draft_code`).
+## 4. Usage Philosophy: Architect vs. Part-timer
+This tool follows a specific delegation model:
+- **Architect (Main AI)**: Responsible for high-level reasoning, gathering context, and performing final QA/integration.
+- **Part-timer (Sub-LLM)**: Responsible for the tedious "heavy lifting" of typing code snippets or drafting files.
+
+### Guidelines for the Architect (Main AI)
+1. **Delegate Early**: Use `draft_code` to generate the bulk of your code changes to save your own context tokens.
+2. **Accept "Draft" Quality (叩き台)**: The output is a draft. It may contain minor logical gaps or missing imports. This is an intentional tradeoff for speed and cost.
+3. **Review & Refine**: After the tool returns, you **MUST** read the generated code and refine it to ensure it perfectly integrates with the existing system.
 
 ### Example Tool Call
 The Main AI (Claude) will call the tool as follows:
 - **path**: `src/main.py`
-- **instruction**: `Add a docstring to the add_numbers function.`
-- **start_line**: 10
-- **end_line**: 15
+- **instruction**: `Add a docstring and implement the validate_input method with basic regex.`
+- **start_line**: 20
+- **end_line**: 35
+- **reference_context**: (Optional snippets of related classes/utilities)
 
 ## 5. Traceability & Logs
 - **mcp_server.log**: Contains structured JSON logs of the last 2 runs.

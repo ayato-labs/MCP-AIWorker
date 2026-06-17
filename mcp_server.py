@@ -291,12 +291,19 @@ def draft_code(
     model: Optional[str] = None,
 ) -> str:
     """
-    Drafts or modifies code using an inexpensive sub-LLM pipeline.
-
-    The pipeline consists of:
-    1. Translation (if non-ASCII detected)
-    2. Context Compression (if token limit is exceeded)
-    3. Final Code Generation
+    Delegates heavy-lifting code drafting to an inexpensive sub-LLM to save YOUR tokens.
+    
+    ### Role: Architect vs. Part-timer
+    - YOU (the Main AI) are the **Architect**: Responsible for high-level design and final QA.
+    - SUB-LLM is the **Part-timer**: Responsible for localized typing and drafting.
+    
+    ### Strategy
+    1. Delegate tedious file modifications or first-draft generation to this tool.
+    2. Provide clear instructions and necessary context (reference_context).
+    3. **CRITICAL**: Expect a "draft" (叩き台). The result may have minor logical gaps.
+    4. **CRITICAL**: YOU must review the output and fix any integration issues.
+    
+    The pipeline includes auto-translation (JA->EN) and context compression.
     """
     run_id = str(uuid.uuid4())
     start_total_time = time.perf_counter()
