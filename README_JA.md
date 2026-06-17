@@ -2,83 +2,61 @@
 
 **Sub-cheap-McpAiAgent** は、Claude 3.5 Sonnet などの高性能な「メインAI」のトークン消費量とコストを劇的に削減するために設計された、Model Context Protocol (MCP) サーバーです。
 
-コードの初稿作成、大規模なファイルの書き換え、技術コンテキストの翻訳など、最もトークンを消費する「泥臭い作業」を安価なサブLLM（Google Gemini Flash または ローカルの Ollama）に委譲します。メインAIは「指揮官（アーキテクト）」としての役割に専念させることができます。
+コードの初稿作成や技術コンテキストの翻訳といった、最もトークンを消費する「泥臭い作業」を安価なサブLLM（Google Gemini, ローカルの Ollama, または Genspark）に委譲します。メインAIは「指揮官（アーキテクト）」としての役割に専念させることができます。
 
 ## 🌟 主な機能
 
-- **高度な実行パイプライン**:
-    1. **翻訳フェーズ**: 日本語の指示やコンテキストを自動で英語に変換（チャンク分割対応）。トークン密度を最適化し、推論精度を向上させます。
-    2. **圧縮フェーズ**: 参照コードがサブLLMの制限を超える場合、構造を維持したまま動的に要約。小型モデルでも動作可能にします。
-    3. **下書きフェーズ**: 最適化された英語コンテキストを用いて、ピンポイントな差分またはコード全体を生成します。
-- **動的なコンテキスト管理**: Gemini API や Ollama モデルの制限を自動で取得・推定し、実行前のオーバーフローを防止します。
-- **マルチバックエンド対応**: `.env` の設定一つで、Google AI Studio (Gemini) とローカルホスト (Ollama) を自由に使い分け可能です。
-- **強力なトレーサビリティ**: `Loguru` による構造化 JSON ログ、実行時間の計測、リクエストごとの `run_id` 付与により、ボトルネックを即座に特定。
-- **安定した運用**: エラーのみを隔離する `error.log` や、致命的エラー時でもターミナルが勝手に閉じないガードロジックを搭載。
+- **「建築家とアルバイト」の役割分担**: メインAI（建築家）が設計し、サブLLM（アルバイト）がコードを書くという分担に特化した設計。
+- **Streamable HTTP (SSE) トランスポート**: 複数のAIエージェントによる並列実行に対応。Stdio 方式の「1対1」の制限を解消しました。
+- **マルチバックエンド対応**: `.env` の設定一つで、**Google Gemini**, **ローカルの Ollama**, **Genspark (検索AI)** を自由に使い分け可能です。
+- **ドラフト優先パイプライン**:
+    1. **翻訳**: 日本語の指示を自動で英語に変換。
+    2. **圧縮**: 大規模なコードコンテキストを動的に要約。
+    3. **下書き**: アーキテクトが洗練させるための「叩き台（ドラフト）」品質のコードを生成。
+- **堅牢な運用**: ステートレスHTTPモード、ホスト名ベースのエンドポイント、100文字制限のコードスタイルを採用。
 
 ## 🏗️ 設計思想
 
-本プロジェクトの根幹は **「意図的な思考コンテキストの遮断」** です。
-- コードや要件といった「情報」はメインAIからサブエージェントへ徹底的に引き渡します。
-- しかし、サブエージェントが返すのは **「実行結果（コード）」のみ** です。
-- サブエージェントの推論プロセス（途中式）はあえて受け取らないことで、メインAIのコンテキストを清潔に保ち、高度な全体指揮に集中させます。
+本プロジェクトの根幹は **「建築家とアルバイト」** モデルです：
+- **メインAI（あなた）は建築家**: 高度な推論、設計、最終的な品質責任を負います。
+- **サブLLMはアルバイト**: 指示に従ってコードをタイピングする「泥臭い作業」を担当します。
+- **「叩き台（ドラフト）」品質の許容**: サブLLMの出力が完璧である必要はありません。多少のミスや不足は「ドラフト」として許容し、建築家が最終的に清書することで、システムをシンプルかつ高速に保ちます。
 
 ## 🚀 クイックスタート (Windows)
 
-1.  **リポジトリのクローン**:
-    ```bash
-    git clone https://github.com/ayato-labs/Sub_cheap_McpAiAgent.git
-    cd Sub_cheap_McpAiAgent
-    ```
+1.  **セットアップ**:
+    `setup.bat` を実行して依存関係をインストールします（`uv` を使用）。
 
-2.  **セットアップ**:
-    自動セットアップスクリプトを実行します。`uv` を使用して仮想環境の作成と依存関係のインストールを行います。
-    ```cmd
-    setup.bat
-    ```
-
-3.  **環境変数の設定**:
-    `.env.example` を参考に `.env` ファイルを作成し、APIキーを記入します。
+2.  **環境変数の設定**:
+    `.env.example` を参考に `.env` ファイルを作成します。
     ```env
-    GOOGLE_API_KEY=your_gemini_api_key
-    TRANSLATION_MODEL=gemini-2.5-flash
-    DRAFTING_MODEL=gemma2:9b
+    AI_PROVIDER=gemini
+    GOOGLE_API_KEY=あなたのキー
     ```
+
+3.  **サーバーの起動**:
+    `run.bat` を実行します。サーバーが `http://[ホスト名]:10300/mcp` で起動します。**このウィンドウは開いたままにしてください。**
 
 4.  **Claude Desktop への登録**:
-    `claude_desktop_config.json` に以下の設定を追加します。
+    `claude_desktop_config.json` に URL を追加します：
     ```json
     {
       "mcpServers": {
         "sub-cheap-mcp": {
-          "command": "uv",
-          "args": [
-            "--directory",
-            "C:/path/to/Sub_cheap_McpAiAgent",
-            "run",
-            "sub-cheap-mcp"
-          ]
+          "url": "http://[あなたのホスト名]:10300/mcp"
         }
       }
     }
     ```
 
-5.  **起動**:
-    ```cmd
-    run.bat
-    ```
-
-## 🛠️ 詳細設定
-
-モデルの切り替えや詳細な動作設定については、[docs/MCP_CONFIGURATION.md](docs/MCP_CONFIGURATION.md) を参照してください。
-
 ## 📄 意思決定記録 (ADR)
 
-技術的な決定背景はすべてドキュメント化されています。
-- [ADR-0001: サブLLMの選定戦略](docs/ADR/ADR-0001-selection-of-sub-llm-and-edit-strategy.md)
-- [ADR-0004: Google AI Studio の採用](docs/ADR/ADR-0004-use-google-ai-studio-api.md)
-- [ADR-0005: 専用翻訳モデル不採用の決定（KISS原則）](docs/ADR/ADR-0005-reject-dedicated-local-translation-models.md)
-- [ADR-0006: Semgrep等を用いた内部QAループの不採用](docs/ADR/ADR-0006-reject-internal-qa-loops.md)
-- [ADR-0007: MVPフェーズにおける自動タスクルーティングの不採用](docs/ADR/ADR-0007-reject-automated-task-routing-for-mvp.md)
+- [ADR-0008: AIプロバイダーの明示的指定](docs/ADR/ADR-0008-explicit-ai-provider-configuration.md)
+- [ADR-0009: Genspark CLI の統合](docs/ADR/ADR-0009-adoption-of-genspark-ai-provider.md)
+- [ADR-0010: 建築家とアルバイトの分担モデル](docs/ADR/ADR-0010-architect-parttimer-delegation-model.md)
+- [ADR-0011: Streamable HTTP への移行](docs/ADR/ADR-0011-switch-to-http-transport.md)
+- [すべてのADRを表示](docs/ADR/)
+
 
 ## 🗺️ ロードマップと将来の展望
 
