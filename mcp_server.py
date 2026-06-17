@@ -13,8 +13,8 @@ from google import genai
 # Load environment variables
 load_dotenv(override=True)
 
-# Initialize FastMCP with stateless_http=True to prevent "session not found" errors on restart
-mcp = FastMCP("Sub-cheap-McpAiAgent", stateless_http=True)
+# Initialize FastMCP
+mcp = FastMCP("Sub-cheap-McpAiAgent")
 
 # Configure logger
 logger.remove()
@@ -443,6 +443,11 @@ if __name__ == "__main__":
             mcp.run(transport="stdio")
     except Exception:
         logger.exception("MCP Server crashed")
+        if transport == "stdio":
+            pass
+        else:
+            input("Press Enter to exit...")
+")
         if transport == "stdio":
             pass
         else:
