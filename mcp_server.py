@@ -410,9 +410,9 @@ if __name__ == "__main__":
     import socket
     import json
 
-    # Default to 'sse' to support parallel use by AI agents, as per ADR-0011.
+    # Default to 'streamable-http' for modern parallel support, as per user requirement.
     # Can be overridden by command line argument: python mcp_server.py stdio
-    transport = "sse"
+    transport = "http"
     if len(sys.argv) > 1:
         transport = sys.argv[1]
 
@@ -420,23 +420,24 @@ if __name__ == "__main__":
     hostname = socket.gethostname()
 
     try:
-        if transport == "sse":
-            logger.info(f"Starting MCP Server on {hostname}:{port} with transport: sse")
+        if transport in ["http", "streamable-http"]:
+            logger.info(f"Starting MCP Server on {hostname}:{port} with transport: streamable-http")
             print("\n" + "=" * 60)
-            print("MCP SERVER RUNNING (SSE MODE)")
-            print(f"URL: http://{hostname}:{port}/sse")
+            print("MCP SERVER RUNNING (STREAMABLE HTTP)")
+            print(f"URL: http://{hostname}:{port}/mcp")
             print("-" * 60)
             print("Claude Desktop Configuration Example:")
             config_example = {
                 "mcpServers": {
                     "sub-cheap-mcp": {
-                        "url": f"http://{hostname}:{port}/sse"
+                        "url": f"http://{hostname}:{port}/mcp"
                     }
                 }
             }
             print(json.dumps(config_example, indent=2))
             print("=" * 60 + "\n")
-            mcp.run(transport="sse", port=port, host="0.0.0.0")
+            # FastMCP uses 'streamable-http' as the transport name internally for this mode
+            mcp.run(transport="streamable-http", port=port, host="0.0.0.0")
         else:
             logger.info("Starting MCP Server with transport: stdio")
             mcp.run(transport="stdio")

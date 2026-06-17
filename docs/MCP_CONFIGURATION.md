@@ -29,7 +29,7 @@ DRAFTING_MODEL=gemini     # Used for context compression and actual code draftin
 Since we have switched to **Streamable HTTP (SSE)** to support parallel agent execution, you must run the server independently.
 
 ### Step 1: Start the Server
-Run the provided `run.bat` in the project root. This will start the MCP server on `http://localhost:8000`. Keep this window open.
+Run the provided `run.bat` in the project root. This will start the MCP server on `http://YOUR-HOSTNAME:10300`. Keep this window open.
 
 ### Step 2: Register in Claude Desktop
 Add the following to your `claude_desktop_config.json` (located at `%APPDATA%\Claude\claude_desktop_config.json`):
@@ -38,7 +38,7 @@ Add the following to your `claude_desktop_config.json` (located at `%APPDATA%\Cl
 {
   "mcpServers": {
     "sub-cheap-mcp": {
-      "url": "http://localhost:8000/sse"
+      "url": "http://YOUR-HOSTNAME:10300/mcp"
     }
   }
 }
