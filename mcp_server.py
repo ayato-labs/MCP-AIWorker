@@ -407,6 +407,8 @@ def draft_code(
 
 if __name__ == "__main__":
     import sys
+    import socket
+    import json
 
     # Default to 'sse' to support parallel use by AI agents, as per ADR-0011.
     # Can be overridden by command line argument: python mcp_server.py stdio
@@ -414,16 +416,33 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         transport = sys.argv[1]
 
+    port = 10300
+    hostname = socket.gethostname()
+
     try:
-        logger.info(f"Starting MCP Server with transport: {transport}")
         if transport == "sse":
-            mcp.run(transport="sse")
+            logger.info(f"Starting MCP Server on {hostname}:{port} with transport: sse")
+            print("\n" + "=" * 60)
+            print("MCP SERVER RUNNING (SSE MODE)")
+            print(f"URL: http://{hostname}:{port}/sse")
+            print("-" * 60)
+            print("Claude Desktop Configuration Example:")
+            config_example = {
+                "mcpServers": {
+                    "sub-cheap-mcp": {
+                        "url": f"http://{hostname}:{port}/sse"
+                    }
+                }
+            }
+            print(json.dumps(config_example, indent=2))
+            print("=" * 60 + "\n")
+            mcp.run(transport="sse", port=port, host="0.0.0.0")
         else:
+            logger.info("Starting MCP Server with transport: stdio")
             mcp.run(transport="stdio")
     except Exception:
         logger.exception("MCP Server crashed")
         if transport == "stdio":
-            # Don't pause in stdio mode as it might break the pipe
             pass
         else:
             input("Press Enter to exit...")
