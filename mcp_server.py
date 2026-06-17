@@ -174,7 +174,7 @@ def translate_to_english(text: str) -> str:
         return text
 
     provider = os.getenv("TRANSLATION_PROVIDER")
-    model_id = os.getenv("TRANSLATION_MODEL", "gemini-2.5-flash")
+    model_id = os.getenv("TRANSLATION_MODEL", "models/gemma-4-31b-it")
     chunk_size = 3000
     chunks = [text[i : i + chunk_size] for i in range(0, len(text), chunk_size)]
     translated_chunks = []
