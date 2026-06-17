@@ -26,27 +26,25 @@ DRAFTING_MODEL=gemini     # Used for context compression and actual code draftin
 ```
 
 ## 3. Claude Desktop Configuration
-To use this server with Claude Desktop, add it to your `claude_desktop_config.json`:
+Since we have switched to **Streamable HTTP (SSE)** to support parallel agent execution, you must run the server independently.
 
-### Windows
-Typically located at: `%APPDATA%\Claude\claude_desktop_config.json`
+### Step 1: Start the Server
+Run the provided `run.bat` in the project root. This will start the MCP server on `http://localhost:8000`. Keep this window open.
+
+### Step 2: Register in Claude Desktop
+Add the following to your `claude_desktop_config.json` (located at `%APPDATA%\Claude\claude_desktop_config.json`):
 
 ```json
 {
   "mcpServers": {
     "sub-cheap-mcp": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "C:/path/to/Sub_cheap_McpAiAgent",
-        "run",
-        "sub-cheap-mcp"
-      ]
+      "url": "http://localhost:8000/sse"
     }
   }
 }
 ```
-*Note: Replace `C:/path/to/Sub_cheap_McpAiAgent` with the absolute path to your repository.*
+*Note: If you need to use the old Stdio mode (not recommended for parallel use), you can run `run.bat stdio` and use the previous `command`/`args` configuration.*
+
 
 ## 4. Usage Philosophy: Architect vs. Part-timer
 This tool follows a specific delegation model:

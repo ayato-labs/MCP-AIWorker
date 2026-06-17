@@ -406,8 +406,24 @@ def draft_code(
 
 
 if __name__ == "__main__":
+    import sys
+
+    # Default to 'sse' to support parallel use by AI agents, as per ADR-0011.
+    # Can be overridden by command line argument: python mcp_server.py stdio
+    transport = "sse"
+    if len(sys.argv) > 1:
+        transport = sys.argv[1]
+
     try:
-        mcp.run()
+        logger.info(f"Starting MCP Server with transport: {transport}")
+        if transport == "sse":
+            mcp.run(transport="sse")
+        else:
+            mcp.run(transport="stdio")
     except Exception:
         logger.exception("MCP Server crashed")
-        input("Press Enter to exit...")
+        if transport == "stdio":
+            # Don't pause in stdio mode as it might break the pipe
+            pass
+        else:
+            input("Press Enter to exit...")
