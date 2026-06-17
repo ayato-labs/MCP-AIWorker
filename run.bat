@@ -8,13 +8,10 @@ if not exist .venv (
     exit /b 1
 )
 
-echo Starting Sub-cheap-McpAiAgent (Transport: SSE)...
-:: Default to sse for parallel support. To use stdio: run.bat stdio
-set TRANSPORT=sse
-if "%~1" neq "" set TRANSPORT=%~1
+echo Starting Sub-cheap-McpAiAgent (Transport: Streamable HTTP)...
 
-:: Use python directly from venv to avoid locking issues with 'uv run' and the script .exe
-.venv\Scripts\python.exe mcp_server.py %TRANSPORT%
+:: Use python directly from venv to avoid locking issues
+.venv\Scripts\python.exe mcp_server.py
 if %errorlevel% neq 0 (
     echo.
     echo Server exited with error code %errorlevel%.
