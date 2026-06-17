@@ -13,8 +13,10 @@ echo Starting Sub-cheap-McpAiAgent (Transport: SSE)...
 set TRANSPORT=sse
 if "%~1" neq "" set TRANSPORT=%~1
 
-uv run mcp_server.py %TRANSPORT%
+:: Use python directly from venv to avoid locking issues with 'uv run' and the script .exe
+.venv\Scripts\python.exe mcp_server.py %TRANSPORT%
 if %errorlevel% neq 0 (
+    echo.
     echo Server exited with error code %errorlevel%.
     pause
 )
