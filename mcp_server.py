@@ -196,7 +196,7 @@ def translate_to_english(text: str) -> str:
 def compress_context(instruction: str, context: str) -> str:
     """Compresses the reference context to fit into the model's window."""
     provider = os.getenv("DRAFTING_PROVIDER")
-    model_id = os.getenv("DRAFTING_MODEL", "gemini-2.5-flash")
+    model_id = os.getenv("DRAFTING_MODEL", "models/gemma-4-31b-it")
     prompt = (
         "You are a context compression expert. Your goal is to shrink the following reference code\n"
         "to be as concise as possible while retaining all structural information (function signatures,\n"
@@ -331,7 +331,7 @@ def draft_code(
 
             # --- 3. COMPRESSION PHASE (Conditional) ---
             provider = os.getenv("DRAFTING_PROVIDER")
-            drafting_model_id = model or os.getenv("DRAFTING_MODEL", "gemini-2.5-flash")
+            drafting_model_id = model or os.getenv("DRAFTING_MODEL", "models/gemma-4-31b-it")
             backend = SubLLMClient.detect_backend(drafting_model_id, provider)
 
             system_prompt = (
