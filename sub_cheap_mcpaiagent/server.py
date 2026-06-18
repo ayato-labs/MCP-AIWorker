@@ -294,17 +294,20 @@ def draft_code(
 ) -> str:
     """
     Delegates heavy-lifting code drafting to an inexpensive sub-LLM to save YOUR tokens.
-    
+
+    ### CRITICAL: Path Requirement
+    - **path** MUST be an **absolute path**. Relative paths will cause errors.
+
     ### Role: Architect vs. Part-timer
     - YOU (the Main AI) are the **Architect**: Responsible for high-level design and final QA.
     - SUB-LLM is the **Part-timer**: Responsible for localized typing and drafting.
-    
+
     ### Strategy
     1. Delegate tedious file modifications or first-draft generation to this tool.
     2. Provide clear instructions and necessary context (reference_context).
     3. **CRITICAL**: Expect a "draft" (叩き台). The result may have minor logical gaps.
     4. **CRITICAL**: YOU must review the output and fix any integration issues.
-    
+
     The pipeline includes auto-translation (JA->EN) and context compression.
     """
     run_id = str(uuid.uuid4())

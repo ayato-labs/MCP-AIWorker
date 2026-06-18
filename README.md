@@ -54,6 +54,17 @@ The core philosophy is **"The Architect and the Part-timer"**:
     }
     ```
 
+### Example Tool Call
+The Main AI (Claude) will call the tool as follows:
+- **path**: `C:\Absolute\Path\To\src\main.py` (**MUST be an absolute path**)
+- **instruction**: `Add a docstring and implement the validate_input method with basic regex.`
+- **start_line**: 20
+- **end_line**: 35
+- **reference_context**: (Optional snippets of related classes/utilities)
+
+> [!IMPORTANT]
+> **Path Requirement**: Always use absolute paths for the `path` parameter. Relative paths can lead to errors when the server attempts to read or write files.
+
 ## 📄 Decision Records (ADR)
 
 - [ADR-0008: Explicit AI Provider Config](docs/ADR/ADR-0008-explicit-ai-provider-configuration.md)

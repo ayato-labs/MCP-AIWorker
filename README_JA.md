@@ -49,7 +49,16 @@
     }
     ```
 
-## 📄 意思決定記録 (ADR)
+### ツール呼び出しの例
+メインAI（Claude）は以下のようにツールを呼び出します：
+- **path**: `C:\Absolute\Path\To\src\main.py` (**必ず絶対パスで指定してください**)
+- **instruction**: `ドキュメント文字列を追加し、正規表現による validate_input メソッドを実装して。`
+- **start_line**: 20
+- **end_line**: 35
+- **reference_context**: (関連するクラスやユーティリティのコードスニペットなど、任意)
+
+> [!IMPORTANT]
+> **パスの要件**: `path` パラメータには必ず絶対パスを使用してください。相対パスを使用すると、サーバーがファイルを正しく特定できず、読み書きに失敗する可能性があります。
 
 - [ADR-0008: AIプロバイダーの明示的指定](docs/ADR/ADR-0008-explicit-ai-provider-configuration.md)
 - [ADR-0009: Genspark CLI の統合](docs/ADR/ADR-0009-adoption-of-genspark-ai-provider.md)
