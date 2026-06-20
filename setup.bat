@@ -6,7 +6,6 @@ echo [1/3] Creating virtual environment...
 uv venv .venv
 if %errorlevel% neq 0 (
     echo Failed to create virtual environment.
-    pause
     exit /b %errorlevel%
 )
 
@@ -15,7 +14,6 @@ call .venv\Scripts\activate.bat
 uv pip install -e .
 if %errorlevel% neq 0 (
     echo Failed to install dependencies.
-    pause
     exit /b %errorlevel%
 )
 
