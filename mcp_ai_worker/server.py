@@ -57,7 +57,7 @@ def find_and_draft_edit(requirement: str, target_dir: str) -> str:
             requirement=requirement, repo_map=repo_map
         )
         provider = os.getenv("DRAFTING_PROVIDER")
-        model_id = os.getenv("DRAFTING_MODEL", "models/gemini-2.0-flash-001")
+        model_id = os.getenv("DRAFTING_MODEL", "models/gemini-3.1-flash-lite")
 
         logger.info("Identifying target file and entity...")
         target_json_str = SubLLMClient.call_any(model_id, finder_prompt, role_name="targeting", provider=provider)
@@ -161,7 +161,7 @@ def execute_command(command: str, working_dir: Optional[str] = None, timeout_sec
         )
 
         provider = os.getenv("DRAFTING_PROVIDER")
-        model_id = os.getenv("DRAFTING_MODEL", "models/gemini-2.0-flash-001")
+        model_id = os.getenv("DRAFTING_MODEL", "models/gemini-3.1-flash-lite")
 
         logger.info("Delegating log summarization to Sub-LLM...")
         summary = SubLLMClient.call_any(model_id, prompt, role_name="summarization", provider=provider)
@@ -180,7 +180,7 @@ def execute_command(command: str, working_dir: Optional[str] = None, timeout_sec
             f"### PARTIAL LOG:\n{partial_log}"
         )
         provider = os.getenv("DRAFTING_PROVIDER")
-        model_id = os.getenv("DRAFTING_MODEL", "models/gemini-2.0-flash-001")
+        model_id = os.getenv("DRAFTING_MODEL", "models/gemini-3.1-flash-lite")
         summary = SubLLMClient.call_any(model_id, prompt, role_name="summarization", provider=provider)
 
         return f"Warning: Command timed out.\n\n[Sub-LLM Partial Log Summary]\n{summary}"
@@ -245,7 +245,7 @@ def draft_code(
 
             # --- 3. COMPRESSION PHASE (Conditional) ---
             provider = os.getenv("DRAFTING_PROVIDER")
-            drafting_model_id = model or os.getenv("DRAFTING_MODEL", "models/gemini-2.0-flash-001")
+            drafting_model_id = model or os.getenv("DRAFTING_MODEL", "models/gemini-3.1-flash-lite")
             backend = SubLLMClient.detect_backend(drafting_model_id, provider)
 
             # Load external system prompt
@@ -454,7 +454,7 @@ def fetch_and_summarize_url(url: str, instruction: Optional[str] = None) -> str:
         summary_prompt += f"### WEB CONTENT (.md):\n{markdown_content}"
 
         provider = os.getenv("DRAFTING_PROVIDER")
-        model_id = os.getenv("DRAFTING_MODEL", "models/gemini-2.0-flash-001")
+        model_id = os.getenv("DRAFTING_MODEL", "models/gemini-3.1-flash-lite")
 
         logger.info("Delegating summary to Sub-LLM with deterministic constraints (temperature=0.0)...")
 
