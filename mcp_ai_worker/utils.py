@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 import socket
+import textwrap
 from urllib.parse import urlparse
 import httpx
 from bs4 import BeautifulSoup
@@ -317,3 +318,22 @@ def _write_back_changes(
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(generated_code + ("\n" if not generated_code.endswith("\n") else ""))
         return f"✅ Successfully wrote to '{file_path.name}' using {model_id}."
+
+
+def validate_syntax(code: str, file_path: Path) -> Optional[str]:
+    """Validates the syntax of the generated code."""
+    if file_path.suffix == ".py":
+        try:
+            # Try parsing as a whole module
+            ast.parse(code)
+            return None
+        except SyntaxError:
+            try:
+                # If it's a snippet, it might be indented or just part of a file.
+                # Wrap it in a dummy function to check if it's syntactically valid code block
+                ast.parse(f"def _dummy():\n{textwrap.indent(code, '    ')}")
+                return None
+            except SyntaxError as e:
+                return f"SyntaxError: {e}"
+    # Add other languages here in the future
+    return None

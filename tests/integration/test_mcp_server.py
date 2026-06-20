@@ -61,12 +61,13 @@ def test_draft_code_partial_overwrite(tmp_path, mock_backend):
     test_file.write_text(original_content)
 
     # Return some code to replace
-    mock_backend.return_value = "new line 2\nnew line 3"
+    mock_backend.return_value = "print('new line 2')\nprint('new line 3')"
 
     result = draft_code(path=str(test_file), instruction="update lines", start_line=2, end_line=3, model="gemini")
 
+
     assert "Updated lines 2-3" in result
-    expected_content = "line 1\nnew line 2\nnew line 3\nline 4\n"
+    expected_content = "line 1\nprint('new line 2')\nprint('new line 3')\nline 4\n"
     assert test_file.read_text() == expected_content
 
 

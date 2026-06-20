@@ -23,10 +23,10 @@ def test_draft_code_integration_partial_success(tmp_path, mock_llm):
     test_file = tmp_path / "app.py"
     content = "line 1\nline 2\nline 3\nline 4\n"
     test_file.write_text(content, encoding="utf-8")
-    mock_llm.return_value = "new 2\nnew 3"
+    mock_llm.return_value = "print('new 2')\nprint('new 3')"
     result = draft_code(path=str(test_file), instruction="Update middle", start_line=2, end_line=3, model="gemini")
     assert "Updated lines 2-3" in result
-    assert test_file.read_text() == "line 1\nnew 2\nnew 3\nline 4\n"
+    assert test_file.read_text() == "line 1\nprint('new 2')\nprint('new 3')\nline 4\n"
 
 
 def test_execute_command_integration_short_log(tmp_path, mock_llm):

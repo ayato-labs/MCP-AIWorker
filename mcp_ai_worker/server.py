@@ -24,6 +24,7 @@ from mcp_ai_worker.utils import (
     _load_target_snippet,
     _write_back_changes,
     extract_test_artifacts,
+    validate_syntax,
 )
 
 # Load environment variables
@@ -292,6 +293,22 @@ def draft_code(
                     drafting_model_id, final_prompt, role_name="drafting", provider=provider
                 )
                 generated_code = clean_code_output(generated_code)
+
+                # --- 4.5. SYNTAX CHECK (Fail-Fast) ---
+                validation_error = validate_syntax(generated_code, file_path)
+                if validation_error:
+                    logger.warning(f"Syntax validation failed: {validation_error}. Attempting repair...")
+                    repair_prompt = f"{final_prompt}\n\n### CRITICAL ERROR:\n{validation_error}\n\nREPAIR THE CODE. Output ONLY the fixed code."
+                    
+                    generated_code = SubLLMClient.call_any(
+                        drafting_model_id, repair_prompt, role_name="repair", provider=provider
+                    )
+                    generated_code = clean_code_output(generated_code)
+                    
+                    second_validation_error = validate_syntax(generated_code, file_path)
+                    if second_validation_error:
+                        logger.error(f"Syntax repair failed: {second_validation_error}")
+                        return f"Drafting failed due to syntax error: {validation_error}\nRepair failed: {second_validation_error}"
             except Exception as e:
                 logger.exception("Final generation failed")
                 return f"Drafting failed: {e}"
