@@ -300,6 +300,80 @@ def _write_back_changes(
 
 
 @mcp.tool()
+def execute_and_summarize(command: str, working_dir: Optional[str] = None, timeout_seconds: int = 60) -> str:
+    """
+    [Architect vs. Part-timer]
+    Executes terminal commands, summarizes the resulting lengthy raw logs (standard output/error output) using an inexpensive sub-LLM,
+    and returns only the important points (error causes and execution results) to YOU (main AI).
+
+    ### CRITICAL WARNING FOR YOU (THE ARCHITECT)
+    - This tool is for saving YOU tokens. Use it for building, testing, and running Lint.
+    - [WARNING] This tool has no security restrictions. The commands you pass will be executed directly on the host OS.
+    - Never issue commands that could lead to directory deletion or system corruption. You are solely responsible.
+    """
+    logger.info(f"Executing command: {command} in {working_dir or 'current dir'}")
+
+    try:
+        # Execute the command (set a timeout as the only defense)
+        result = subprocess.run(
+            command,
+            shell=True,
+            cwd=working_dir,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds
+        )
+        # Merge logs
+        raw_log = f"--- STDOUT ---\n{result.stdout}\n\n--- STDERR ---\n{result.stderr}"
+
+        # If the log is very short, return it directly without using LLM (optimize cost and latency)
+        if len(raw_log.strip()) < 300:
+            return f"Command completed (Exit code: {result.returncode}).\nRaw Output:\n{raw_log}"
+
+        # Delegate log summarization to sub-LLM
+        prompt = (
+            "You are a log analysis assistant. Read the following terminal execution log.\n"
+            f"The command exited with code {result.returncode}.\n"
+            "Summarize what happened, focusing strictly on errors, warnings, or key outcomes.\n"
+            "Keep the summary concise (a few lines to a dozen lines)."
+            "Do NOT repeat the entire raw log. Provide actionable insights for the Architect AI.\n\n"
+            f"### RAW LOG:\n{raw_log}"
+        )
+
+        provider = os.getenv("DRAFTING_PROVIDER")
+        model_id = os.getenv("DRAFTING_MODEL", "models/gemma-4-31b-it")
+
+        logger.info("Delegating log summarization to Sub-LLM...")
+        summary = SubLLMClient.call_any(model_id, prompt, role_name="summarization", provider=provider)
+
+        return (
+            f"Command executed (Exit code: {result.returncode}).\n\n"
+            f"[Sub-LLM Log Summary]\n{summary}"
+        )
+    except subprocess.TimeoutExpired as e:
+        # Handling timeout exceptions (collect logs up to a certain point and summarize them)
+        stdout = e.stdout.decode() if isinstance(e.stdout, bytes) else (e.stdout or "")
+        stderr = e.stderr.decode() if isinstance(e.stderr, bytes) else (e.stderr or "")
+        partial_log = f"--- PARTIAL STDOUT ---\n{stdout}\n\n--- PARTIAL STDERR ---\n{stderr}"
+        logger.warning(f"Command timed out after {timeout_seconds}s.")
+
+        prompt = (
+            f"The command timed out after {timeout_seconds} seconds."
+            "Read the following partial log and summarize any errors or signs of an infinite loop/hang.\n\n"
+            f"### PARTIAL LOG:\n{partial_log}"
+        )
+        provider = os.getenv("DRAFTING_PROVIDER")
+        model_id = os.getenv("DRAFTING_MODEL", "models/gemma-4-31b-it")
+        summary = SubLLMClient.call_any(model_id, prompt, role_name="summarization", provider=provider)
+
+        return f"Warning: Command timed out.\n\n[Sub-LLM Partial Log Summary]\n{summary}"
+
+    except Exception as e:
+        logger.exception("Failed to execute command")
+        return f"System Error: Failed to execute command: {e}"
+
+
+@mcp.tool()
 def draft_code(
     path: str,
     instruction: str,
