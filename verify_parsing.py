@@ -2,7 +2,6 @@ import mcp_ai_worker.utils
 from mcp_ai_worker.utils import clean_code_output
 
 
-
 # Mocking the logger to capture warnings for the test
 class MockLogger:
     def __init__(self):
@@ -19,9 +18,7 @@ test_cases = [
     {
         "name": "Perfect XML",
         "input": (
-            "Here is the result:\n<draft_output>"
-            "\ndef hello():\n    print('world')\n</draft_output>"
-            "\nHope this helps!"
+            "Here is the result:\n<draft_output>\ndef hello():\n    print('world')\n</draft_output>\nHope this helps!"
         ),
         "expected": "def hello():\n    print('world')",
     },

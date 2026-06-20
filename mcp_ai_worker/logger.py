@@ -14,9 +14,7 @@ def setup_logger():
     os.makedirs(log_dir, exist_ok=True)
 
     # Keep only the two most recent execution logs
-    log_files = sorted(
-        glob.glob(os.path.join(log_dir, "execution_*.log")), key=os.path.getmtime, reverse=True
-    )
+    log_files = sorted(glob.glob(os.path.join(log_dir, "execution_*.log")), key=os.path.getmtime, reverse=True)
     for old_file in log_files[1:]:
         try:
             os.remove(old_file)

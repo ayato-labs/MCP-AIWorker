@@ -37,8 +37,6 @@ def clean_json_output(text: str) -> str:
     return text.strip()
 
 
-
-
 def generate_repo_map(directory: str) -> str:
     """Generates a signature map of the entire directory using grep-ast"""
     try:
@@ -62,9 +60,7 @@ def generate_repo_map(directory: str) -> str:
                         with open(full_path, "r", encoding="utf-8") as f:
                             tree = ast.parse(f.read())
                         for node in ast.walk(tree):
-                            if isinstance(
-                                node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
-                            ):
+                            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                                 repo_map.append(f"{rel_path}:{node.lineno}: {node.name}")
                     except Exception:
                         continue
@@ -102,9 +98,7 @@ def extract_target_block(filepath: str, target_name: str) -> tuple[str, int, int
         next_block = re.search(r"^\s*(?:def|class)\s+", remaining_text, re.MULTILINE)
 
         # More accurate line count for end_line
-        snippet = content_str[
-            match.start() : (match.end() + next_block.start()) if next_block else len(content_str)
-        ]
+        snippet = content_str[match.start() : (match.end() + next_block.start()) if next_block else len(content_str)]
 
         # Re-calculate end_line based on snippet
         end_line = start_line + snippet.count("\n")
@@ -133,9 +127,7 @@ def translate_to_english(text: str) -> str:
             f"TEXT:\n{chunk}"
         )
         logger.info(f"Translating chunk {i + 1}/{len(chunks)}...")
-        translated_chunks.append(
-            SubLLMClient.call_any(model_id, prompt, role_name="translation", provider=provider)
-        )
+        translated_chunks.append(SubLLMClient.call_any(model_id, prompt, role_name="translation", provider=provider))
 
     return "\n".join(translated_chunks)
 
@@ -223,9 +215,7 @@ def clean_code_output(text: str) -> str:
     cleaned = text.strip()
 
     # 1. Extraction by XML tag (<draft_output>)
-    xml_pattern = re.compile(
-        r"<draft_output>\s*\n?(.*?)\n?\s*</draft_output>", re.DOTALL | re.IGNORECASE
-    )
+    xml_pattern = re.compile(r"<draft_output>\s*\n?(.*?)\n?\s*</draft_output>", re.DOTALL | re.IGNORECASE)
     match = xml_pattern.search(cleaned)
     if match:
         cleaned = match.group(1).strip()
@@ -255,9 +245,7 @@ def clean_code_output(text: str) -> str:
     return cleaned.strip()
 
 
-def _load_target_snippet(
-    file_path: Path, start_line: Optional[int], end_line: Optional[int]
-) -> tuple[str, list[str]]:
+def _load_target_snippet(file_path: Path, start_line: Optional[int], end_line: Optional[int]) -> tuple[str, list[str]]:
     """Reads the target file and extracts the snippet to be modified."""
     if not file_path.exists():
         return "", []

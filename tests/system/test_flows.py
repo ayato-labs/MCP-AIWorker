@@ -37,8 +37,7 @@ def test_system_flow_add_method_to_class(tmp_path, mock_llm):
     # Mock LLM to return a replacement for the class block
     # We simulate adding a method 'save'
     mock_llm.return_value = (
-        "class User:\n    def __init__(self):\n        pass\n"
-        "    def save(self):\n        print('saved')\n"
+        "class User:\n    def __init__(self):\n        pass\n    def save(self):\n        print('saved')\n"
     )
 
     # WHEN: User requests adding a method to the class (partial update)
@@ -78,17 +77,11 @@ def test_system_flow_auto_find_and_fix(tmp_path, mock_llm):
 
     # Mock prompts and repo map
     with (
-        patch(
-            "mcp_ai_worker.server.generate_repo_map", return_value="utils.py: helper\nmain.py: main"
-        ),
-        patch(
-            "mcp_ai_worker.server.load_prompt_template", return_value="{requirement}\n{repo_map}"
-        ),
+        patch("mcp_ai_worker.server.generate_repo_map", return_value="utils.py: helper\nmain.py: main"),
+        patch("mcp_ai_worker.server.load_prompt_template", return_value="{requirement}\n{repo_map}"),
     ):
         # WHEN: User asks to change the helper function
-        result = find_and_draft_edit(
-            requirement="Change helper return value to 'helped'", target_dir=str(proj_dir)
-        )
+        result = find_and_draft_edit(requirement="Change helper return value to 'helped'", target_dir=str(proj_dir))
 
     # THEN: The correct file is updated
     assert "Updated lines" in result or "Successfully wrote" in result

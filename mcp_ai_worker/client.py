@@ -107,9 +107,7 @@ class SubLLMClient:
             return SubLLMClient.call_ollama(model_id, prompt, role_name, temperature)
 
     @staticmethod
-    def call_gemini(
-        model_name: str, prompt: str, role_name: str = "task", temperature: Optional[float] = None
-    ) -> str:
+    def call_gemini(model_name: str, prompt: str, role_name: str = "task", temperature: Optional[float] = None) -> str:
         client = SubLLMClient.get_gemini_client()
 
         # Dynamic context check
@@ -120,14 +118,10 @@ class SubLLMClient:
             token_count_resp = client.models.count_tokens(model=model_name, contents=prompt)
             current_tokens = token_count_resp.total_tokens
 
-            logger.info(
-                f"Gemini [{role_name}] ({model_name}) Tokens: {current_tokens}/{max_tokens}"
-            )
+            logger.info(f"Gemini [{role_name}] ({model_name}) Tokens: {current_tokens}/{max_tokens}")
 
             if current_tokens > max_tokens:
-                raise ValueError(
-                    f"Prompt exceeds Gemini context limit: {current_tokens} > {max_tokens}"
-                )
+                raise ValueError(f"Prompt exceeds Gemini context limit: {current_tokens} > {max_tokens}")
         except Exception as e:
             logger.warning(f"Could not verify Gemini context limit for {model_name}: {e}")
 
@@ -140,11 +134,7 @@ class SubLLMClient:
                 config=genai.types.GenerateContentConfig(
                     temperature=temperature
                     if temperature is not None
-                    else (
-                        0.0
-                        if role_name == "summarization"
-                        else (0.1 if role_name != "drafting" else 0.2)
-                    ),
+                    else (0.0 if role_name == "summarization" else (0.1 if role_name != "drafting" else 0.2)),
                 ),
             )
             elapsed = time.perf_counter() - start_time
@@ -155,9 +145,7 @@ class SubLLMClient:
             raise
 
     @staticmethod
-    def call_ollama(
-        model_name: str, prompt: str, role_name: str = "task", temperature: Optional[float] = None
-    ) -> str:
+    def call_ollama(model_name: str, prompt: str, role_name: str = "task", temperature: Optional[float] = None) -> str:
         base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 
         # Dynamic context check for Ollama
@@ -166,14 +154,9 @@ class SubLLMClient:
             if show_resp.status_code == 200:
                 context_limit = 4096  # Conservative default
                 estimated_tokens = len(prompt) // 4
-                logger.info(
-                    f"Ollama [{role_name}] ({model_name}) "
-                    f"Est. Tokens: ~{estimated_tokens}/{context_limit}"
-                )
+                logger.info(f"Ollama [{role_name}] ({model_name}) Est. Tokens: ~{estimated_tokens}/{context_limit}")
                 if estimated_tokens > context_limit:
-                    logger.warning(
-                        f"Prompt might exceed Ollama limit: ~{estimated_tokens} > {context_limit}"
-                    )
+                    logger.warning(f"Prompt might exceed Ollama limit: ~{estimated_tokens} > {context_limit}")
         except Exception as e:
             logger.warning(f"Could not verify Ollama context limit for {model_name}: {e}")
 
@@ -189,11 +172,7 @@ class SubLLMClient:
                     "options": {
                         "temperature": temperature
                         if temperature is not None
-                        else (
-                            0.0
-                            if role_name == "summarization"
-                            else (0.1 if role_name != "drafting" else 0.2)
-                        )
+                        else (0.0 if role_name == "summarization" else (0.1 if role_name != "drafting" else 0.2))
                     },
                 },
                 timeout=90,

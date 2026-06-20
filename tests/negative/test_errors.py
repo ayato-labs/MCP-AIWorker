@@ -13,9 +13,7 @@ def test_draft_code_invalid_range(tmp_path, mock_llm):
     test_file.write_text("print('hi')\n", encoding="utf-8")
 
     # Start line > end line
-    result = draft_code(
-        path=str(test_file), instruction="update", start_line=10, end_line=5, model="gemini"
-    )
+    result = draft_code(path=str(test_file), instruction="update", start_line=10, end_line=5, model="gemini")
     assert "Error: start_line cannot be greater than end_line." in result
 
 
@@ -47,14 +45,12 @@ def test_find_and_draft_edit_malformed_json(tmp_path, mock_llm):
     # Mock 1: Repo Map
     # Mock 2: Targeting LLM returns malformed JSON
     mock_llm.return_value = (
-        "I cannot find the file, but here is a guess: { 'file': 'main.py' }"
-    )  # Invalid JSON (single quotes)
+        "I cannot find the file, but here is a guess: { 'file': 'main.py' }"  # Invalid JSON (single quotes)
+    )
 
     with (
         patch("mcp_ai_worker.server.generate_repo_map", return_value="main.py: hello"),
-        patch(
-            "mcp_ai_worker.server.load_prompt_template", return_value="{requirement}\n{repo_map}"
-        ),
+        patch("mcp_ai_worker.server.load_prompt_template", return_value="{requirement}\n{repo_map}"),
     ):
         result = find_and_draft_edit(requirement="update", target_dir=str(proj_dir))
 
@@ -71,9 +67,7 @@ def test_execute_command_timeout(tmp_path, mock_llm):
 
     python_exe = sys.executable
 
-    result = execute_command(
-        command=f'"{python_exe}" {sleep_script}', working_dir=str(tmp_path), timeout_seconds=1
-    )
+    result = execute_command(command=f'"{python_exe}" {sleep_script}', working_dir=str(tmp_path), timeout_seconds=1)
 
     assert "Warning: Command timed out" in result
     mock_llm.assert_called()

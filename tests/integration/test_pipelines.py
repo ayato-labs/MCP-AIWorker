@@ -12,9 +12,7 @@ def test_draft_code_integration_success(tmp_path, mock_llm):
     test_file = tmp_path / "app.py"
     test_file.write_text("def old_func():\n    pass\n", encoding="utf-8")
     mock_llm.return_value = "def new_func():\n    return True\n"
-    result = draft_code(
-        path=str(test_file), instruction="Replace old_func with new_func", model="gemini"
-    )
+    result = draft_code(path=str(test_file), instruction="Replace old_func with new_func", model="gemini")
     assert "Successfully wrote to" in result
     assert "def new_func():" in test_file.read_text()
     assert "def old_func():" not in test_file.read_text()
@@ -25,9 +23,7 @@ def test_draft_code_integration_partial_success(tmp_path, mock_llm):
     content = "line 1\nline 2\nline 3\nline 4\n"
     test_file.write_text(content, encoding="utf-8")
     mock_llm.return_value = "new 2\nnew 3"
-    result = draft_code(
-        path=str(test_file), instruction="Update middle", start_line=2, end_line=3, model="gemini"
-    )
+    result = draft_code(path=str(test_file), instruction="Update middle", start_line=2, end_line=3, model="gemini")
     assert "Updated lines 2-3" in result
     assert test_file.read_text() == "line 1\nnew 2\nnew 3\nline 4\n"
 
@@ -79,13 +75,9 @@ def test_find_and_draft_edit_integration(tmp_path, mock_llm):
     # Since grep-ast might not be installed in venv, we might need to mock it.
     with (
         patch("mcp_ai_worker.server.generate_repo_map", return_value="main.py: hello"),
-        patch(
-            "mcp_ai_worker.server.load_prompt_template", return_value="{requirement}\n{repo_map}"
-        ),
+        patch("mcp_ai_worker.server.load_prompt_template", return_value="{requirement}\n{repo_map}"),
     ):
-        result = find_and_draft_edit(
-            requirement="Change hello to print hello world", target_dir=str(proj_dir)
-        )
+        result = find_and_draft_edit(requirement="Change hello to print hello world", target_dir=str(proj_dir))
 
     assert "Updated lines" in result or "Successfully wrote" in result
     assert "print('hello world')" in src_file.read_text()

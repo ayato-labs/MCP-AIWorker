@@ -58,9 +58,7 @@ def find_and_draft_edit(requirement: str, target_dir: str) -> str:
         model_id = os.getenv("DRAFTING_MODEL", "models/gemma-4-31b-it")
 
         logger.info("Identifying target file and entity...")
-        target_json_str = SubLLMClient.call_any(
-            model_id, finder_prompt, role_name="targeting", provider=provider
-        )
+        target_json_str = SubLLMClient.call_any(model_id, finder_prompt, role_name="targeting", provider=provider)
 
         try:
             target_info = json.loads(clean_json_output(target_json_str))
@@ -78,23 +76,16 @@ def find_and_draft_edit(requirement: str, target_dir: str) -> str:
         # Reusing draft_code internal logic via final_prompt
         system_prompt = load_prompt_template("draft_system_prompt.txt")
         if not system_prompt:
-            system_prompt = (
-                "You are a coding assistant providing a draft (叩き台) based on specific "
-                "instructions."
-            )
+            system_prompt = "You are a coding assistant providing a draft (叩き台) based on specific instructions."
 
         final_prompt = f"{system_prompt}\n\nInstruction: {requirement}\n\nCurrent Block:\n{snippet}"
 
         logger.info("Generating code draft...")
-        draft_code_raw = SubLLMClient.call_any(
-            model_id, final_prompt, role_name="drafting", provider=provider
-        )
+        draft_code_raw = SubLLMClient.call_any(model_id, final_prompt, role_name="drafting", provider=provider)
         cleaned_code = clean_code_output(draft_code_raw)
 
         # Write back changes
-        msg = _write_back_changes(
-            Path(filepath), cleaned_code, start_line, end_line, full_content, model_id
-        )
+        msg = _write_back_changes(Path(filepath), cleaned_code, start_line, end_line, full_content, model_id)
 
         total_elapsed = time.perf_counter() - start_total_time
         logger.info(f"{msg} (Total pipeline time: {total_elapsed:.2f}s)")
@@ -102,9 +93,7 @@ def find_and_draft_edit(requirement: str, target_dir: str) -> str:
 
 
 @mcp.tool()
-def execute_command(
-    command: str, working_dir: Optional[str] = None, timeout_seconds: int = 90
-) -> str:
+def execute_command(command: str, working_dir: Optional[str] = None, timeout_seconds: int = 90) -> str:
     """
     [Architect vs. Part-timer]
     Executes terminal commands and summarizes the resulting lengthy raw logs
@@ -149,14 +138,9 @@ def execute_command(
         model_id = os.getenv("DRAFTING_MODEL", "models/gemma-4-31b-it")
 
         logger.info("Delegating log summarization to Sub-LLM...")
-        summary = SubLLMClient.call_any(
-            model_id, prompt, role_name="summarization", provider=provider
-        )
+        summary = SubLLMClient.call_any(model_id, prompt, role_name="summarization", provider=provider)
 
-        return (
-            f"Command executed (Exit code: {result.returncode}).\n\n"
-            f"[Sub-LLM Log Summary]\n{summary}"
-        )
+        return f"Command executed (Exit code: {result.returncode}).\n\n[Sub-LLM Log Summary]\n{summary}"
     except subprocess.TimeoutExpired as e:
         # Handling timeout exceptions (collect logs up to a certain point and summarize them)
         stdout = e.stdout.decode() if isinstance(e.stdout, bytes) else (e.stdout or "")
@@ -171,9 +155,7 @@ def execute_command(
         )
         provider = os.getenv("DRAFTING_PROVIDER")
         model_id = os.getenv("DRAFTING_MODEL", "models/gemma-4-31b-it")
-        summary = SubLLMClient.call_any(
-            model_id, prompt, role_name="summarization", provider=provider
-        )
+        summary = SubLLMClient.call_any(model_id, prompt, role_name="summarization", provider=provider)
 
         return f"Warning: Command timed out.\n\n[Sub-LLM Partial Log Summary]\n{summary}"
 
@@ -269,15 +251,11 @@ def draft_code(
                 try:
                     client = SubLLMClient.get_gemini_client()
                     limit = client.models.get(model=drafting_model_id).input_token_limit
-                    count = client.models.count_tokens(
-                        model=drafting_model_id, contents=final_prompt
-                    ).total_tokens
+                    count = client.models.count_tokens(model=drafting_model_id, contents=final_prompt).total_tokens
 
                     if count > (limit * 0.9) and reference_context:
                         reference_context = compress_context(instruction, reference_context)
-                        final_prompt = build_draft_prompt(
-                            instruction, target_snippet, reference_context
-                        )
+                        final_prompt = build_draft_prompt(instruction, target_snippet, reference_context)
                 except Exception as e:
                     logger.warning(f"Compression check failed: {e}")
 
@@ -357,9 +335,7 @@ def fetch_and_summarize_url(url: str, instruction: Optional[str] = None) -> str:
         provider = os.getenv("DRAFTING_PROVIDER")
         model_id = os.getenv("DRAFTING_MODEL", "models/gemma-4-31b-it")
 
-        logger.info(
-            "Delegating summary to Sub-LLM with deterministic constraints (temperature=0.0)..."
-        )
+        logger.info("Delegating summary to Sub-LLM with deterministic constraints (temperature=0.0)...")
 
         # 3. Invoke Sub-LLM with a deterministic zero-temperature setting
         try:
@@ -396,9 +372,7 @@ def main():
             logger.info("Starting MCP Server with transport: stdio")
             mcp.run(transport="stdio")
         else:
-            logger.info(
-                f"Starting MCP Server on {bind_host}:{port} with transport: streamable-http"
-            )
+            logger.info(f"Starting MCP Server on {bind_host}:{port} with transport: streamable-http")
             config_example = json.dumps(
                 {"mcpServers": {"mcp-ai-worker": {"url": f"http://{bind_host}:{port}/mcp"}}},
                 indent=2,

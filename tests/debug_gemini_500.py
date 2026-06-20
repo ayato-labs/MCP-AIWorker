@@ -27,9 +27,7 @@ def multiply(a, b):
     return a * b
 """
 
-prompt = (
-    f"{system_prompt}\n### Instruction:\n{instruction}\n\n### Current Code Snippet:\n{snippet}\n\n"
-)
+prompt = f"{system_prompt}\n### Instruction:\n{instruction}\n\n### Current Code Snippet:\n{snippet}\n\n"
 
 print("--- PROMPT ---")
 print(prompt)

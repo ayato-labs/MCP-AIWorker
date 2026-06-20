@@ -22,9 +22,7 @@ def test_clean_code_output_unclosed_markdown():
 @pytest.fixture
 def mock_backend(mocker):
     # Mock call_any to return different values based on the role or just a default
-    return mocker.patch(
-        "mcp_ai_worker.server.SubLLMClient.call_any", return_value="def mock_func():\n    return 42"
-    )
+    return mocker.patch("mcp_ai_worker.server.SubLLMClient.call_any", return_value="def mock_func():\n    return 42")
 
 
 def test_draft_code_full_overwrite(tmp_path, mock_backend):
@@ -64,9 +62,7 @@ def test_draft_code_partial_overwrite(tmp_path, mock_backend):
     # Return some code to replace
     mock_backend.return_value = "new line 2\nnew line 3"
 
-    result = draft_code(
-        path=str(test_file), instruction="update lines", start_line=2, end_line=3, model="gemini"
-    )
+    result = draft_code(path=str(test_file), instruction="update lines", start_line=2, end_line=3, model="gemini")
 
     assert "Updated lines 2-3" in result
     expected_content = "line 1\nnew line 2\nnew line 3\nline 4\n"

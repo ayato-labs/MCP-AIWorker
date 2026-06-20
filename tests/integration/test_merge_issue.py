@@ -41,9 +41,7 @@ def multiply(a, b):
     os.environ["DRAFTING_MODEL"] = "models/gemma-4-31b-it"
 
     # 3. Call the draft_code function directly
-    instruction = (
-        "Add a divide(a, b) function to this calculator. Return the complete updated file."
-    )
+    instruction = "Add a divide(a, b) function to this calculator. Return the complete updated file."
 
     try:
         draft_code(
