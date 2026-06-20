@@ -58,7 +58,8 @@ def generate_repo_map(directory: str) -> str:
         for root, dirs, files in os.walk(directory):
             # Skip common ignored directories
             dirs[:] = [
-                d for d in dirs 
+                d
+                for d in dirs
                 if d not in [".venv", ".git", "__pycache__", ".pytest_cache", ".ruff_cache", ".egg-info"]
             ]
             for file in files:
@@ -368,16 +369,9 @@ def _validate_python(code: str) -> Optional[str]:
             ast.parse(f"def _dummy():\n{textwrap.indent(code, '    ')}")
             return None
         except SyntaxError as e_inner:
-            return json.dumps({
-                "error_type": "SyntaxError",
-                "message": str(e_inner),
-                "line": e_inner.lineno
-            })
+            return json.dumps({"error_type": "SyntaxError", "message": str(e_inner), "line": e_inner.lineno})
     except Exception as e:
-        return json.dumps({
-            "error_type": "UnexpectedError",
-            "message": str(e)
-        })
+        return json.dumps({"error_type": "UnexpectedError", "message": str(e)})
 
 
 def _validate_with_command(code: str, command: list[str]) -> Optional[str]:
@@ -393,19 +387,13 @@ def _validate_with_command(code: str, command: list[str]) -> Optional[str]:
             timeout=5,
         )
         if result.returncode != 0:
-            return json.dumps({
-                "error_type": "SyntaxError",
-                "message": result.stderr or result.stdout
-            })
+            return json.dumps({"error_type": "SyntaxError", "message": result.stderr or result.stdout})
         return None
     except FileNotFoundError:
         # Tool not installed, skip check
         return None
     except Exception as e:
-        return json.dumps({
-            "error_type": "ValidationError",
-            "message": str(e)
-        })
+        return json.dumps({"error_type": "ValidationError", "message": str(e)})
     finally:
         if "temp_path" in locals() and os.path.exists(temp_path):
             os.remove(temp_path)
