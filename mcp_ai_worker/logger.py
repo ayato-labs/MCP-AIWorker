@@ -5,6 +5,7 @@ import datetime
 import json
 from pathlib import Path
 from loguru import logger
+from mcp_ai_worker.metrics import add_tokens_to_current_tool
 
 
 def setup_logger():
@@ -36,7 +37,10 @@ def setup_logger():
 
 
 def log_token_usage(provider: str, model_name: str, input_tokens: int, output_tokens: int):
-    """Logs token usage to data/token_usage.json."""
+    """Logs token usage to data/token_usage.json and updates metrics."""
+    # Add to current tool metrics
+    add_tokens_to_current_tool(input_tokens, output_tokens)
+    
     data_dir = Path("data")
     data_dir.mkdir(exist_ok=True)
     log_file = data_dir / "token_usage.json"

@@ -8,7 +8,7 @@ from typing import Optional
 from pathlib import Path
 from dotenv import load_dotenv
 from fastmcp import FastMCP
-from mcp_ai_worker.logger import logger
+from mcp_ai_worker.metrics import track_metrics
 
 # Import sub-modules
 from mcp_ai_worker.client import SubLLMClient
@@ -35,6 +35,7 @@ mcp = FastMCP("MCP-AIWorker")
 
 
 @mcp.tool()
+@track_metrics
 def find_and_draft_edit(requirement: str, target_dir: str) -> str:
     """
     [Architect vs. Part-timer]
@@ -116,6 +117,7 @@ def is_command_safe(command: str) -> bool:
 
 
 @mcp.tool()
+@track_metrics
 def execute_command(command: str, working_dir: Optional[str] = None, timeout_seconds: int = 90) -> str:
     """
     [Architect vs. Part-timer]
@@ -191,6 +193,7 @@ def execute_command(command: str, working_dir: Optional[str] = None, timeout_sec
 
 
 @mcp.tool()
+@track_metrics
 def draft_code(
     path: str,
     instruction: str,
@@ -346,6 +349,7 @@ def draft_code(
 
 
 @mcp.tool()
+@track_metrics
 def generate_unit_tests(
     source_file_path: str,
     output_dir_path: str,
@@ -407,6 +411,7 @@ def generate_unit_tests(
 
 
 @mcp.tool()
+@track_metrics
 def fetch_and_summarize_url(url: str, instruction: Optional[str] = None) -> str:
     """
     [Architect vs. Part-timer]
