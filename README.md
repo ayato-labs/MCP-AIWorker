@@ -24,12 +24,13 @@ MCP-AIWorker optimizes this by implementing the **Architect-Worker Paradigm**:
 *   **Predictable Performance**: Rejects complex, non-deterministic internal QA loops. The Architect AI retains absolute control, ensuring the system remains fast and predictable.
 *   **Platform Agnostic**: Being an MCP server, it can be integrated into **any** MCP-compliant client.
 
-### Token Usage Tracking
-MCP-AIWorker includes built-in telemetry to prove its value. Track your savings using the included utility:
+### Token Usage Tracking & Cost Observatory
+MCP-AIWorker includes built-in telemetry to prove its value.
+1. It automatically tracks token usage per tool execution in a local SQLite database.
+2. View your real-time cost savings and token consumption metrics:
 ```bash
-python scripts/analyze_tokens.py
+.venv\Scripts\python.exe scripts\show_dashboard.py
 ```
-*(This aggregates usage data stored in `data/token_usage.json`.)*
 
 ---
 
