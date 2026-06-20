@@ -245,6 +245,25 @@ def clean_code_output(text: str) -> str:
     return cleaned.strip()
 
 
+def extract_test_artifacts(raw_output: str) -> tuple[str, str]:
+    """
+    Extracts the <test_plan> and <draft_output> from the Sub-LLM's response.
+    Returns: (test_plan_text, test_code_text)
+    """
+    plan_match = re.search(r"<test_plan>(.*?)</test_plan>", raw_output, re.DOTALL)
+    code_match = re.search(r"<draft_output>(.*?)</draft_output>", raw_output, re.DOTALL)
+
+    plan_text = plan_match.group(1).strip() if plan_match else "No test plan provided."
+
+    if code_match:
+        code_text = code_match.group(1).strip()
+    else:
+        # Fallback/Rescue handling for truncated streams
+        code_text = clean_code_output(raw_output)
+
+    return plan_text, code_text
+
+
 def _load_target_snippet(file_path: Path, start_line: Optional[int], end_line: Optional[int]) -> tuple[str, list[str]]:
     """Reads the target file and extracts the snippet to be modified."""
     if not file_path.exists():

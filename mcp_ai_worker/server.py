@@ -23,6 +23,7 @@ from mcp_ai_worker.utils import (
     fetch_and_clean_markdown,
     _load_target_snippet,
     _write_back_changes,
+    extract_test_artifacts,
 )
 
 # Load environment variables
@@ -293,6 +294,67 @@ def draft_code(
         except Exception as e:
             logger.exception("Unexpected fatal error in pipeline")
             return f"Fatal error: {e}"
+
+
+@mcp.tool()
+def generate_unit_tests(
+    source_file_path: str,
+    output_dir_path: str,
+    test_framework: str = "pytest",
+    additional_instruction: Optional[str] = None,
+    model: Optional[str] = None,
+) -> str:
+    """
+    [Architect vs. Part-timer]
+    Reads a specified source file, generates isolated unit tests based on strict AAA patterns,
+    and saves the test file to the designated absolute directory.
+    
+    ### CRITICAL INSTRUCTION FOR ARCHITECT (YOU):
+    - You MUST use `additional_instruction` to specify WHICH edge cases or specific methods to focus on.
+    - Do NOT ask for integration tests. The Sub-LLM will explicitly mock all external dependencies.
+    """
+    run_id = str(uuid.uuid4())
+    
+    with logger.contextualize(run_id=run_id):
+        # 1. Validation
+        source_path = Path(source_file_path)
+        if not source_path.is_absolute() or not Path(output_dir_path).is_absolute():
+            return "Error: source_file_path and output_dir_path must be absolute."
+        if not source_path.exists():
+            return f"Error: Source file not found: {source_file_path}"
+        
+        # 2. Setup
+        test_file_name = f"test_{source_path.name}"
+        test_file_path = Path(output_dir_path) / test_file_name
+        
+        # 3. Prompt Assembly
+        source_code = source_path.read_text(encoding="utf-8")
+        system_prompt = load_prompt_template("unit_test_system_prompt.txt")
+        
+        prompt = f"{system_prompt}\n\n### SOURCE CODE:\n{source_code}"
+        if additional_instruction:
+            instruction_en = translate_to_english(additional_instruction)
+            prompt += f"\n\n### ADDITIONAL INSTRUCTIONS:\n{instruction_en}"
+            
+        # 4. Execution
+        provider = os.getenv("DRAFTING_PROVIDER")
+        model_id = model or os.getenv("DRAFTING_MODEL", "models/gemma-4-31b-it")
+        
+        logger.info(f"Generating unit tests for {source_path.name}...")
+        
+        raw_output = SubLLMClient.call_any(model_id, prompt, role_name="testing", provider=provider)
+        
+        test_plan, test_code = extract_test_artifacts(raw_output)
+        
+        # 5. File I/O
+        try:
+            test_file_path.parent.mkdir(parents=True, exist_ok=True)
+            test_file_path.write_text(test_code, encoding="utf-8")
+            logger.info(f"Test plan generated: {test_plan}")
+            return f"✅ Successfully generated unit tests in {test_file_path}.\n\n[Test Plan]\n{test_plan}"
+        except Exception as e:
+            logger.exception("Failed to write test file")
+            return f"Error writing test file: {e}"
 
 
 @mcp.tool()
