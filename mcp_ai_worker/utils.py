@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 from typing import Optional
 from loguru import logger
-from sub_cheap_mcpaiagent.client import SubLLMClient
+from mcp_ai_worker.client import SubLLMClient
 
 def load_prompt_template(filename: str) -> str:
     """Loads a prompt template from the prompts directory."""

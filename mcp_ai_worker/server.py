@@ -11,8 +11,8 @@ from fastmcp import FastMCP
 from loguru import logger
 
 # Import sub-modules
-from sub_cheap_mcpaiagent.client import SubLLMClient
-from sub_cheap_mcpaiagent.utils import (
+from mcp_ai_worker.client import SubLLMClient
+from mcp_ai_worker.utils import (
     load_prompt_template,
     clean_json_output,
     generate_repo_map,
@@ -28,7 +28,7 @@ from sub_cheap_mcpaiagent.utils import (
 load_dotenv(override=True)
 
 # Initialize FastMCP
-mcp = FastMCP("Sub-cheap-McpAiAgent")
+mcp = FastMCP("MCP-AIWorker")
 
 # Configure logger
 logger.remove()
@@ -320,7 +320,7 @@ def draft_code(
 
 def main():
     # We exclusively use Streamable HTTP for parallel support.
-    # Hidden fallback: python -m sub_cheap_mcpaiagent.server stdio (not recommended)
+    # Hidden fallback: python -m mcp_ai_worker.server stdio (not recommended)
     transport = "http"
     if len(sys.argv) > 1:
         transport = sys.argv[1]
@@ -342,7 +342,7 @@ def main():
             print("Claude Desktop Configuration Example:")
             config_example = {
                 "mcpServers": {
-                    "sub-cheap-mcp": {
+                    "mcp-ai-worker": {
                         "url": f"http://{bind_host}:{port}/mcp"
                     }
                 }
