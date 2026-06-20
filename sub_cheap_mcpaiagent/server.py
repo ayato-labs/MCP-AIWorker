@@ -263,6 +263,7 @@ def extract_target_block(filepath: str, target_name: str) -> tuple[str, int, int
         logger.exception(f"Failed to extract target block: {e}")
         return "", 0, 0, []
 
+def translate_to_english(text: str) -> str:
     """Chunks text and translates it to English."""
     if not text or text.isascii():
         return text
