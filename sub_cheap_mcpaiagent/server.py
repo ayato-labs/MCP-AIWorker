@@ -212,28 +212,44 @@ def compress_context(instruction: str, context: str) -> str:
 
 
 def clean_code_output(text: str) -> str:
-    """Removes markdown code blocks and common preamble/postamble."""
-    # Remove markdown blocks
-    if "```" in text:
-        # Extract content between first and last triple backticks
-        import re
+    """
+    A robust code parsing function.
+    It performs multi-stage extraction of XML tags, removal of Markdown, and cleansing of noise (explanatory text).
+    """
+    if not text:
+        return ""
 
-        match = re.search(r"```(?:\w+)?\n?(.*?)\n?```", text, re.DOTALL)
-        if match:
-            text = match.group(1)
-        else:
-            # Fallback: just strip the marks if they exist at ends
-            text = text.replace("```python", "").replace("```", "").strip()
+    cleaned = text.strip()
 
-    # Remove common AI phrases if they leaked
+    # 1. Extraction by XML tag (<draft_output>)
+    xml_pattern = re.compile(r"<draft_output>\s*\n?(.*?)\n?\s*</draft_output>", re.DOTALL | re.IGNORECASE)
+    match = xml_pattern.search(cleaned)
+    if match:
+        cleaned = match.group(1).strip()
+    else:
+        # Fallback: Recovery when tags are not closed due to token restrictions, etc.
+        partial_xml_pattern = re.compile(r"<draft_output>\s*\n?(.*)", re.DOTALL | re.IGNORECASE)
+        partial_match = partial_xml_pattern.search(cleaned)
+        if partial_match:
+            logger.warning("Unclosed <draft_output> tag detected. Rescuing partial content.")
+            cleaned = partial_match.group(1).strip()
+
+    # 2. Removing Markdown Code Blocks
+    md_pattern = re.compile(r"```(?:\w+)?\n?(.*?)\n?```", re.DOTALL)
+    md_match = md_pattern.search(cleaned)
+    if md_match:
+        cleaned = md_match.group(1).strip()
+    else:
+        # Fallback: simple stripping if not properly wrapped
+        cleaned = cleaned.replace("```python", "").replace("```", "").strip()
+
+    # 3. Final noise cleansing (only if the result is short and contains common phrases)
     noise_phrases = ["Here is the updated code", "I have modified", "The following code"]
     for phrase in noise_phrases:
-        if (
-            phrase in text and len(text.splitlines()) < 5
-        ):  # Only if it's very short/likely a preamble
-            text = text.replace(phrase, "")
+        if phrase in cleaned and len(cleaned.splitlines()) < 5:
+            cleaned = cleaned.replace(phrase, "")
 
-    return text.strip()
+    return cleaned.strip()
 
 
 def _load_target_snippet(
@@ -339,17 +355,23 @@ def draft_code(
             drafting_model_id = model or os.getenv("DRAFTING_MODEL", "models/gemma-4-31b-it")
             backend = SubLLMClient.detect_backend(drafting_model_id, provider)
 
-            system_prompt = (
-                "You are a coding assistant providing a draft (叩き台) based on specific "
-                "instructions.\nYour goal is to perform the heavy lifting of writing code "
-                "so the Architect can refine it.\n"
-                "RULES:\n"
-                "- Output ONLY the code. No explanations, no markdown blocks.\n"
-                "- Maintain existing indentation and style.\n"
-                "- Provide the FULL replacement for the given snippet.\n"
-                "- If unsure, provide the most likely draft; the Architect will handle "
-                "final validation.\n"
-            )
+            # Load external system prompt
+            try:
+                prompt_path = Path("prompts/draft_system_prompt.txt")
+                system_prompt = prompt_path.read_text(encoding="utf-8")
+            except Exception as e:
+                logger.error(f"Failed to load prompt file: {e}")
+                system_prompt = (
+                    "You are a coding assistant providing a draft (叩き台) based on specific "
+                    "instructions.\nYour goal is to perform the heavy lifting of writing code "
+                    "so the Architect can refine it.\n"
+                    "RULES:\n"
+                    "- Output ONLY the code. No explanations, no markdown blocks.\n"
+                    "- Maintain existing indentation and style.\n"
+                    "- Provide the FULL replacement for the given snippet.\n"
+                    "- If unsure, provide the most likely draft; the Architect will handle "
+                    "final validation.\n"
+                )
 
             def build_draft_prompt(instr, snippet, context):
                 p = f"{system_prompt}\n### Instruction:\n{instr}\n\n"
