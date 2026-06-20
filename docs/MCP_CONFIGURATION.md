@@ -22,6 +22,7 @@ OLLAMA_MODEL=gemma2:9b
 
 # Role-based Model Selection ('gemini' or 'ollama')
 TRANSLATION_MODEL=gemini  # Used for translating Japanese to English and chunking
+DRAFTING_PROVIDER=gemini  # Provider for code drafting ('gemini' or 'ollama')
 DRAFTING_MODEL=gemini     # Used for context compression and actual code drafting
 ```
 
@@ -66,6 +67,12 @@ The Main AI (Claude) will call the tool as follows:
 
 > [!IMPORTANT]
 > **Path Requirement**: Always use absolute paths for the `path` parameter. Relative paths can lead to errors when the server attempts to read or write files.
+
+## 6. URL Summarization Configuration
+The `fetch_and_summarize_url` tool uses a sub-LLM to compress web content into a concise summary.
+- **Static Content Only**: The tool utilizes `beautifulsoup4` and `markdownify` to extract text. It does not execute JavaScript, so Single Page Applications (SPAs) may return empty or incomplete content.
+- **Markdown Formatting**: The extracted content is converted to clean Markdown before being sent to the LLM to maintain structural integrity while minimizing token usage.
+- **Instructional Focus**: You can provide an optional `instruction` parameter to tell the sub-LLM what specific information to look for (e.g., "Focus on the API authentication section").
 
 ## 5. Traceability & Logs
 - **mcp_server.log**: Contains structured JSON logs of the last 2 runs.

@@ -17,3 +17,5 @@ This directory contains records of the significant architectural decisions made 
 - [ADR-0012: Robust Output Control and Prompt Externalization](ADR-0012-robust-output-control-and-prompt-externalization.md)
 - [ADR-0013: Terminal Execution Log Summarization](ADR-0013-terminal-execution-log-summarization.md)
 - [ADR-0014: Rename to MCP-AIWorker and Modular File Splitting](ADR-0014-rename-to-mcp-aiworker-and-file-splitting.md)
+- [ADR-0015: Structured Logging with Loguru](ADR-0015-structured-logging-with-loguru.md)
+- [ADR-0016: URL Text Extraction and Summarization](ADR-0016-url-text-extraction-and-summarization.md)
