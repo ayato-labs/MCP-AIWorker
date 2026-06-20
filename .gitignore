@@ -6,4 +6,5 @@ __pycache__/
 sub_cheap_mcpaiagent.egg-info/
 .DS_Store
 *.pyc
-tests/__pycache__/
+# Metrics
+metrics.db
