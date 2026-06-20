@@ -7,6 +7,7 @@ import textwrap
 import tempfile
 import json
 import datetime
+import ipaddress
 from urllib.parse import urlparse
 
 import httpx
@@ -195,10 +196,15 @@ def is_safe_url(url: str) -> bool:
         hostname = urlparse(url).hostname
         if not hostname:
             return False
-        ip = socket.gethostbyname(hostname)
-        # Block loopback and private networks
-        if ip.startswith("127.") or ip.startswith("10.") or ip.startswith("192.168."):
+        
+        # Resolve hostname to IP
+        ip_str = socket.gethostbyname(hostname)
+        ip = ipaddress.ip_address(ip_str)
+        
+        # Block private and reserved networks
+        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_multicast or ip.is_reserved:
             return False
+            
         return True
     except Exception:
         return False
@@ -210,8 +216,12 @@ def fetch_and_clean_markdown(url: str, timeout: float = 10.0) -> str:
         raise ValueError("Security Error: Invalid or insecure URL.")
 
     # 1. Fetch static HTML
-    with httpx.Client(timeout=timeout) as client:
-        response = client.get(url, follow_redirects=True)
+    with httpx.Client(timeout=timeout, follow_redirects=True) as client:
+        response = client.get(url)
+        # Check if the final URL after redirect is safe
+        if not is_safe_url(str(response.url)):
+            raise ValueError("Security Error: Redirected to an insecure URL.")
+            
         response.raise_for_status()
         html_content = response.text
 
