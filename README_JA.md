@@ -131,6 +131,8 @@ run.bat
 *   [ADR-0011: Streamable HTTP 移行](docs/ADR/ADR-0011-switch-to-http-transport.md)
 *   [ADR-0012: 出力制御とタグ救済](docs/ADR/ADR-0012-robust-output-control-and-prompt-externalization.md)
 *   [ADR-0013: 実行ログ要約エンジン](docs/ADR/ADR-0013-terminal-execution-log-summarization.md)
+*   [ADR-0016: URL テキスト抽出と要約](docs/ADR/ADR-0016-url-text-extraction-and-summarization.md)
+*   [ADR-0017: ユニットテスト生成ツール](docs/ADR/ADR-0017-unit-test-generation-tool.md)
 
 ---
 
