@@ -78,3 +78,10 @@ def test_execute_command_system_error(tmp_path):
     result = execute_command(command="non_existent_command_12345", working_dir=str(tmp_path))
     assert "Command completed" in result
     assert "Exit code: 1" in result
+
+
+def test_execute_command_blocked(tmp_path):
+    # Try to run a blacklisted command
+    result = execute_command(command="format c:", working_dir=str(tmp_path))
+    assert "Security Error" in result
+    assert "blocked" in result

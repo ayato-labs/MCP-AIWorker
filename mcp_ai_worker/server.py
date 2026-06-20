@@ -93,6 +93,25 @@ def find_and_draft_edit(requirement: str, target_dir: str) -> str:
         return msg
 
 
+def is_command_safe(command: str) -> bool:
+    """
+    Checks if the command contains potentially destructive patterns.
+    """
+    import re
+    # Patterns for highly destructive Windows commands
+    dangerous_patterns = [
+        r"\bformat\b",
+        r"\bdiskpart\b",
+        r"\breg\s+delete\b",
+        r"\brm\s+-rf\s+/\b",  # Check for root rm -rf /
+        r"\bdel\s+/f\s+/s\s+/q\s+c:\\\b",  # Destructive del on C drive
+        r"\brmdir\s+/s\s+/q\s+c:\\\b",    # Destructive rmdir on C drive
+    ]
+    for pattern in dangerous_patterns:
+        if re.search(pattern, command, re.IGNORECASE):
+            return False
+    return True
+
 @mcp.tool()
 def execute_command(command: str, working_dir: Optional[str] = None, timeout_seconds: int = 90) -> str:
     """
@@ -103,10 +122,13 @@ def execute_command(command: str, working_dir: Optional[str] = None, timeout_sec
 
     ### CRITICAL WARNING FOR YOU (THE ARCHITECT)
     - This tool is for saving YOU tokens. Use it for building, testing, and running Lint.
-    - [WARNING] This tool has no security restrictions. The commands you pass will be executed directly on the host OS.
+    - [WARNING] This tool has limited security restrictions to prevent accidental damage.
     - Never issue commands that could lead to directory deletion or system corruption. You are solely responsible.
     """
     logger.info(f"Executing command: {command} in {working_dir or 'current dir'}")
+    
+    if not is_command_safe(command):
+        return f"Security Error: The command '{command}' is blocked due to safety restrictions."
 
     try:
         # Execute the command (set a timeout as the only defense)
