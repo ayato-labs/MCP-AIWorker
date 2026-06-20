@@ -389,6 +389,12 @@ def fetch_and_summarize_url(url: str, instruction: Optional[str] = None) -> str:
             "Summarize the core points accurately based ONLY on the provided text.\n"
             "Do NOT invent facts, do NOT assume or extrapolate.\n"
             "Structure the output in clean Markdown format using bullet points.\n\n"
+            "CRITICAL INSTRUCTION:\n"
+            "If the provided web content lacks substantive body text, consists mainly of "
+            "navigation menus/footer links, or states that JavaScript is required, "
+            "DO NOT attempt to summarize it.\n"
+            "Instead, you MUST return EXACTLY the following string and nothing else:\n"
+            "[ERROR: INSUFFICIENT_CONTENT_SPA]\n\n"
         )
 
         if instruction:
@@ -412,7 +418,23 @@ def fetch_and_summarize_url(url: str, instruction: Optional[str] = None) -> str:
                 provider=provider,
                 temperature=0.0,  # Rigidly enforce factual constraint
             )
+
+            if "[ERROR: INSUFFICIENT_CONTENT_SPA]" in summary:
+                raise ValueError("SPA Detection by Sub-LLM: Content insufficient.")
+
         except Exception as e:
+            if "SPA Detection" in str(e):
+                fail_message = (
+                    "Tool Execution Aborted: The target URL appears to be a Single Page Application (SPA) "
+                    "or requires JavaScript rendering. Text extraction yielded insufficient content.\n\n"
+                    "CRITICAL DIRECTIVE FOR ARCHITECT:\n"
+                    "- DO NOT retry fetching this URL.\n"
+                    "- DO NOT attempt to use other search tools for this specific URL.\n"
+                    "- You MUST explicitly ask the user to manually copy and paste the required content "
+                    "from their browser into the chat."
+                )
+                return fail_message
+
             logger.exception("Failed to summarize content")
             return f"Summarization failed: {e}"
 

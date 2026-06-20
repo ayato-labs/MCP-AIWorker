@@ -176,6 +176,16 @@ def fetch_and_clean_markdown(url: str, timeout: float = 10.0) -> str:
         response.raise_for_status()
         html_content = response.text
 
+    # SPA Regex Check
+    spa_patterns = [
+        r"You need to enable JavaScript to run this app",
+        r"Please enable JavaScript to continue",
+        r"JavaScript is required to view this site",
+    ]
+    for pattern in spa_patterns:
+        if re.search(pattern, html_content, re.IGNORECASE):
+            raise ValueError("SPA Detected: Target page requires JavaScript.")
+
     soup = BeautifulSoup(html_content, "html.parser")
 
     # 2. Narrow down the target container
@@ -197,8 +207,8 @@ def fetch_and_clean_markdown(url: str, timeout: float = 10.0) -> str:
     cleaned_md = cleaned_md.strip()
 
     # SPA Detection: Fail fast if the extracted context is too shallow
-    if len(cleaned_md) < 100:
-        logger.warning(f"Possible SPA or empty content detected for URL: {url}")
+    if len(cleaned_md) < 300:
+        logger.warning(f"Possible SPA or empty content detected for URL: {url} (Length: {len(cleaned_md)})")
         raise ValueError("Extraction Error: Content is too short or the page is a dynamic SPA.")
 
     return cleaned_md
