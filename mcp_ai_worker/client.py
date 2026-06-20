@@ -135,7 +135,7 @@ class SubLLMClient:
                 model=model_name,
                 contents=prompt,
                 config=genai.types.GenerateContentConfig(
-                    temperature=0.1 if role_name != "drafting" else 0.2,
+                    temperature=0.0 if role_name == "summarization" else (0.1 if role_name != "drafting" else 0.2),
                 ),
             )
             elapsed = time.perf_counter() - start_time
@@ -176,7 +176,7 @@ class SubLLMClient:
                     "model": model_name,
                     "prompt": prompt,
                     "stream": False,
-                    "options": {"temperature": 0.1 if role_name != "drafting" else 0.2},
+                     "options": {"temperature": 0.0 if role_name == "summarization" else (0.1 if role_name != "drafting" else 0.2)},
                 },
                 timeout=90,
             )
