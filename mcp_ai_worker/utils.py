@@ -140,17 +140,17 @@ def ast_compress_python(code: str) -> str:
     try:
         tree = ast.parse(code)
     except SyntaxError:
-        return code # Cannot parse, return as is
+        return code  # Cannot parse, return as is
 
     class BodyTrimmer(ast.NodeTransformer):
         def visit_FunctionDef(self, node):
-            node.body = [ast.Expr(value=ast.Constant(value='...'))]
+            node.body = [ast.Expr(value=ast.Constant(value="..."))]
             return node
-        
+
         def visit_AsyncFunctionDef(self, node):
-            node.body = [ast.Expr(value=ast.Constant(value='...'))]
+            node.body = [ast.Expr(value=ast.Constant(value="..."))]
             return node
-            
+
         def visit_ClassDef(self, node):
             # Recurse into class to find methods
             self.generic_visit(node)
@@ -164,7 +164,7 @@ def compress_context(instruction: str, context: str) -> str:
     """Compresses the reference context to fit into the model's window."""
     # Pre-process with AST-based semantic compression
     compressed_context = ast_compress_python(context)
-    
+
     provider = os.getenv("DRAFTING_PROVIDER")
     model_id = os.getenv("DRAFTING_MODEL", "models/gemma-4-31b-it")
     prompt = (
@@ -367,10 +367,10 @@ def _validate_python(code: str) -> Optional[str]:
 
 def _validate_with_command(code: str, command: list[str]) -> Optional[str]:
     try:
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.tmp') as f:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".tmp") as f:
             f.write(code)
             temp_path = f.name
-        
+
         result = subprocess.run(
             command + [temp_path],
             capture_output=True,
@@ -386,14 +386,14 @@ def _validate_with_command(code: str, command: list[str]) -> Optional[str]:
     except Exception as e:
         return f"Validation error: {e}"
     finally:
-        if 'temp_path' in locals() and os.path.exists(temp_path):
+        if "temp_path" in locals() and os.path.exists(temp_path):
             os.remove(temp_path)
 
 
 def validate_syntax(code: str, file_path: Path) -> Optional[str]:
     """Validates the syntax of the generated code."""
     ext = file_path.suffix
-    
+
     if ext == ".py":
         return _validate_python(code)
     elif ext == ".php":
@@ -402,5 +402,5 @@ def validate_syntax(code: str, file_path: Path) -> Optional[str]:
         return _validate_with_command(code, ["gcc", "-fsyntax-only"])
     # Note: Go, Rust, Java, Typescript need proper project setup for full checks.
     # For now, we skip them or use very basic checks if available.
-    
+
     return None

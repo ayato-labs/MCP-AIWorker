@@ -99,6 +99,7 @@ def is_command_safe(command: str) -> bool:
     Checks if the command contains potentially destructive patterns.
     """
     import re
+
     # Patterns for highly destructive Windows commands
     dangerous_patterns = [
         r"\bformat\b",
@@ -106,12 +107,13 @@ def is_command_safe(command: str) -> bool:
         r"\breg\s+delete\b",
         r"\brm\s+-rf\s+/\b",  # Check for root rm -rf /
         r"\bdel\s+/f\s+/s\s+/q\s+c:\\\b",  # Destructive del on C drive
-        r"\brmdir\s+/s\s+/q\s+c:\\\b",    # Destructive rmdir on C drive
+        r"\brmdir\s+/s\s+/q\s+c:\\\b",  # Destructive rmdir on C drive
     ]
     for pattern in dangerous_patterns:
         if re.search(pattern, command, re.IGNORECASE):
             return False
     return True
+
 
 @mcp.tool()
 def execute_command(command: str, working_dir: Optional[str] = None, timeout_seconds: int = 90) -> str:
@@ -127,7 +129,7 @@ def execute_command(command: str, working_dir: Optional[str] = None, timeout_sec
     - Never issue commands that could lead to directory deletion or system corruption. You are solely responsible.
     """
     logger.info(f"Executing command: {command} in {working_dir or 'current dir'}")
-    
+
     if not is_command_safe(command):
         return f"Security Error: The command '{command}' is blocked due to safety restrictions."
 
@@ -302,12 +304,12 @@ def draft_code(
                         f"{final_prompt}\n\n### CRITICAL ERROR:\n{validation_error}\n\n"
                         "REPAIR THE CODE. Output ONLY the fixed code."
                     )
-                    
+
                     generated_code = SubLLMClient.call_any(
                         drafting_model_id, repair_prompt, role_name="repair", provider=provider
                     )
                     generated_code = clean_code_output(generated_code)
-                    
+
                     second_validation_error = validate_syntax(generated_code, file_path)
                     if second_validation_error:
                         logger.error(f"Syntax repair failed: {second_validation_error}")
