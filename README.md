@@ -111,7 +111,8 @@ Runs directory-wide targeting. It scans the repository using `grep-ast` to pinpo
 Executes terminal commands (e.g. testing, linting) and delegates the lengthy stdout/stderr output to a sub-LLM for a concise summary. Saves valuable context window tokens.
 
 ### `fetch_and_summarize_url`
-Extracts text content from a specified HTTPS URL and generates an accurate summary using a sub-LLM, saving token overhead. (Requires static HTML, Single Page Applications are not supported).
+Extracts text content from a specified HTTPS URL and generates an accurate summary using a sub-LLM, saving token overhead.
+*Note: Only static HTML is supported. Single Page Applications (SPAs) are intentionally excluded due to high maintenance costs and security risks associated with browser-based rendering engines. If an SPA needs to be summarized, please ask the main AI to handle it directly or manually copy-paste the content.*
 *   **url** (string): Absolute HTTPS URL to fetch.
 *   **instruction** (optional string): Specific focus request for the summary.
 
