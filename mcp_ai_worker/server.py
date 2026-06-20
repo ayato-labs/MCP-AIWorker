@@ -200,7 +200,7 @@ def draft_code(
             # --- PRE-FLIGHT ---
             if start_line is not None and end_line is not None and start_line > end_line:
                 return "Error: start_line cannot be greater than end_line."
-            
+
             file_path = Path(path)
             # Allow creation if instruction contains "create"
             if not file_path.exists() and "create" not in instruction.lower():
