@@ -297,11 +297,12 @@ def draft_code(
                 generated_code = clean_code_output(generated_code)
 
                 # --- 4.5. SYNTAX CHECK (Fail-Fast) ---
-                validation_error = validate_syntax(generated_code, file_path)
-                if validation_error:
-                    logger.warning(f"Syntax validation failed: {validation_error}. Attempting repair...")
+                validation_error_json = validate_syntax(generated_code, file_path)
+                if validation_error_json:
+                    error_data = json.loads(validation_error_json)
+                    logger.warning(f"Syntax validation failed: {error_data.get('message')}. Attempting repair...")
                     repair_prompt = (
-                        f"{final_prompt}\n\n### CRITICAL ERROR:\n{validation_error}\n\n"
+                        f"{final_prompt}\n\n### CRITICAL ERROR:\n{error_data.get('message')}\n\n"
                         "REPAIR THE CODE. Output ONLY the fixed code."
                     )
 
@@ -310,12 +311,13 @@ def draft_code(
                     )
                     generated_code = clean_code_output(generated_code)
 
-                    second_validation_error = validate_syntax(generated_code, file_path)
-                    if second_validation_error:
-                        logger.error(f"Syntax repair failed: {second_validation_error}")
+                    second_validation_error_json = validate_syntax(generated_code, file_path)
+                    if second_validation_error_json:
+                        second_error_data = json.loads(second_validation_error_json)
+                        logger.error(f"Syntax repair failed: {second_error_data.get('message')}")
                         return (
-                            f"Drafting failed due to syntax error: {validation_error}\n"
-                            f"Repair failed: {second_validation_error}"
+                            f"Drafting failed due to syntax error: {error_data.get('message')}\n"
+                            f"Repair failed: {second_error_data.get('message')}"
                         )
             except Exception as e:
                 logger.exception("Final generation failed")

@@ -5,6 +5,7 @@ import subprocess
 import socket
 import textwrap
 import tempfile
+import json
 from urllib.parse import urlparse
 
 import httpx
@@ -361,8 +362,17 @@ def _validate_python(code: str) -> Optional[str]:
             # Wrap it in a dummy function to check if it's syntactically valid code block
             ast.parse(f"def _dummy():\n{textwrap.indent(code, '    ')}")
             return None
-        except SyntaxError as e:
-            return f"SyntaxError: {e}"
+        except SyntaxError as e_inner:
+            return json.dumps({
+                "error_type": "SyntaxError",
+                "message": str(e_inner),
+                "line": e_inner.lineno
+            })
+    except Exception as e:
+        return json.dumps({
+            "error_type": "UnexpectedError",
+            "message": str(e)
+        })
 
 
 def _validate_with_command(code: str, command: list[str]) -> Optional[str]:
@@ -378,13 +388,19 @@ def _validate_with_command(code: str, command: list[str]) -> Optional[str]:
             timeout=5,
         )
         if result.returncode != 0:
-            return f"Syntax Error: {result.stderr or result.stdout}"
+            return json.dumps({
+                "error_type": "SyntaxError",
+                "message": result.stderr or result.stdout
+            })
         return None
     except FileNotFoundError:
         # Tool not installed, skip check
         return None
     except Exception as e:
-        return f"Validation error: {e}"
+        return json.dumps({
+            "error_type": "ValidationError",
+            "message": str(e)
+        })
     finally:
         if "temp_path" in locals() and os.path.exists(temp_path):
             os.remove(temp_path)
