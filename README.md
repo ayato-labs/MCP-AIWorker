@@ -6,7 +6,7 @@
 
 [日本語版はこちら (Japanese Version)](README_JA.md)
 
-**MCP-AIWorker** is a Model Context Protocol (MCP) server built to slash API token consumption and development costs of high-performance "Frontier" models (like Claude 3.5 Sonnet).
+**MCP-AIWorker** is a Model Context Protocol (MCP) server built to slash API token consumption and development costs of high-performance "Frontier" models (like Claude 5 / Fable 5).
 
 By delegating token-heavy, mechanical tasks—such as drafting repetitive code, JA-to-EN context translations, and summarizing massive log outputs—to inexpensive sub-LLMs (Google Gemini Flash, local Ollama, or Genspark Search AI), the Main AI remains focused on what it does best: acting as the high-level **System Architect**.
 

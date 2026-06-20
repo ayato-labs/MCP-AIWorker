@@ -5,7 +5,7 @@
 
 [English Version is here](README.md)
 
-**MCP-AIWorker** は、Claude 3.5 Sonnet などの高性能な「メインAI」のトークン消費量とAPIコストを劇的に削減するために設計された、Model Context Protocol (MCP) サーバーです。
+**MCP-AIWorker** は、Claude 5 (Fable 5) などの高性能な「メインAI」のトークン消費量とAPIコストを劇的に削減するために設計された、Model Context Protocol (MCP) サーバーです。
 
 定型的なコードの下書き作成、日本語から英語へのコンテキスト翻訳、数千行に及ぶビルド・テストログの要約など、トークン消費が激しく機械的な作業を安価なサブLLM（Google Gemini Flash、ローカルのOllama、またはGenspark Search AI）に委譲（アウトソーシング）し、メインAIは意思決定とシステム設計（**Architect**）に専念させます。
 
