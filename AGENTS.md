@@ -15,6 +15,7 @@
 - **Main Entrypoint**: `mcp_server.py`
 - **Core Logic**: `mcp_ai_worker/server.py` (Tool implementations) and `mcp_ai_worker/utils.py` (Helper functions).
 - **Prompts**: Externalized in `prompts/*.txt`.
+- **Design**: See `docs/ADR/` for architectural decisions.
 
 ## Tooling Constraints
 
