@@ -25,8 +25,8 @@ class MyClass:
     # Verify syntax
     try:
         ast.parse(compressed)
-    except SyntaxError:
-        assert False, "Compressed code is invalid Python"
+    except SyntaxError as e:
+        raise AssertionError("Compressed code is invalid Python") from e
 
 if __name__ == "__main__":
     test_ast_compress_python()

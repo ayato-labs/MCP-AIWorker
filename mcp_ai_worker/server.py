@@ -298,7 +298,10 @@ def draft_code(
                 validation_error = validate_syntax(generated_code, file_path)
                 if validation_error:
                     logger.warning(f"Syntax validation failed: {validation_error}. Attempting repair...")
-                    repair_prompt = f"{final_prompt}\n\n### CRITICAL ERROR:\n{validation_error}\n\nREPAIR THE CODE. Output ONLY the fixed code."
+                    repair_prompt = (
+                        f"{final_prompt}\n\n### CRITICAL ERROR:\n{validation_error}\n\n"
+                        "REPAIR THE CODE. Output ONLY the fixed code."
+                    )
                     
                     generated_code = SubLLMClient.call_any(
                         drafting_model_id, repair_prompt, role_name="repair", provider=provider
@@ -308,7 +311,10 @@ def draft_code(
                     second_validation_error = validate_syntax(generated_code, file_path)
                     if second_validation_error:
                         logger.error(f"Syntax repair failed: {second_validation_error}")
-                        return f"Drafting failed due to syntax error: {validation_error}\nRepair failed: {second_validation_error}"
+                        return (
+                            f"Drafting failed due to syntax error: {validation_error}\n"
+                            f"Repair failed: {second_validation_error}"
+                        )
             except Exception as e:
                 logger.exception("Final generation failed")
                 return f"Drafting failed: {e}"
