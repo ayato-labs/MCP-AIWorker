@@ -40,7 +40,9 @@ def test_fetch_and_clean_markdown_success(mock_get):
             <nav>Nav noise</nav>
             <main>
                 <h1>Main Title</h1>
-                <p>This is the core content. We need to make it longer than 100 characters to avoid the SPA detection failure. Adding some more text here to ensure the test passes and the cleaning logic works as expected.</p>
+                 <p>This is the core content. We need to make it longer than 100 characters
+                 to avoid the SPA detection failure. Adding some more text here to ensure
+                 the test passes and the cleaning logic works as expected.</p>
                 <footer>Footer noise</footer>
             </main>
             <script>alert(1)</script>

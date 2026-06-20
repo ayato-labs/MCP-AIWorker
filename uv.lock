@@ -932,7 +932,6 @@ wheels = [
 ]
 
 [[package]]
-<<<<<<< HEAD
 name = "markupsafe"
 version = "3.0.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1018,8 +1017,6 @@ wheels = [
 ]
 
 [[package]]
-=======
->>>>>>> b5b705bdbb31962cbd7a160aabd1cf5d7eb81920
 name = "mcp"
 version = "1.28.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1084,47 +1081,6 @@ dev = [
     { name = "pytest" },
     { name = "pytest-mock" },
     { name = "python-semantic-release" },
-    { name = "ruff" },
-]
-
-[[package]]
-name = "mcp-ai-worker"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "beautifulsoup4" },
-    { name = "fastmcp" },
-    { name = "google-genai" },
-    { name = "httpx" },
-    { name = "loguru" },
-    { name = "markdownify" },
-    { name = "python-dotenv" },
-    { name = "requests" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pytest" },
-    { name = "pytest-mock" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "beautifulsoup4", specifier = ">=4.12.0" },
-    { name = "fastmcp" },
-    { name = "google-genai", specifier = ">=2.8.0" },
-    { name = "httpx", specifier = ">=0.27.0" },
-    { name = "loguru" },
-    { name = "markdownify", specifier = ">=0.11.0" },
-    { name = "python-dotenv" },
-    { name = "requests" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pytest" },
-    { name = "pytest-mock" },
     { name = "ruff" },
 ]
 
@@ -2006,7 +1962,6 @@ wheels = [
 ]
 
 [[package]]
-<<<<<<< HEAD
 name = "shellingham"
 version = "1.5.4"
 source = { registry = "https://pypi.org/simple" }
@@ -2016,8 +1971,6 @@ wheels = [
 ]
 
 [[package]]
-=======
->>>>>>> b5b705bdbb31962cbd7a160aabd1cf5d7eb81920
 name = "six"
 version = "1.17.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2027,7 +1980,6 @@ wheels = [
 ]
 
 [[package]]
-<<<<<<< HEAD
 name = "smmap"
 version = "5.0.3"
 source = { registry = "https://pypi.org/simple" }
@@ -2037,8 +1989,6 @@ wheels = [
 ]
 
 [[package]]
-=======
->>>>>>> b5b705bdbb31962cbd7a160aabd1cf5d7eb81920
 name = "sniffio"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
