@@ -53,7 +53,7 @@ version_variables = ["mcp_ai_worker/__init__.py:__version__"]
 version_toml = ["pyproject.toml:project.version"]
 upload_to_pypi = false
 upload_to_release = true
-build_command = "python -m build"
+build_command = "uv build"
 
 
 [dependency-groups]
