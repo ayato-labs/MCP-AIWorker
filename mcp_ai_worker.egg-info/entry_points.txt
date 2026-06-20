@@ -1,0 +1,2 @@
+[console_scripts]
+mcp-ai-worker = mcp_ai_worker.server:main

@@ -3,10 +3,10 @@ Read the following Repository Map (which shows only signatures, not implementati
 Identify the single file and the specific function/class that needs to be edited to fulfill the Requirement.
 
 Output strictly in the following JSON format:
-{
+{{
 "target_file": "path/to/file.py",
 "target_entity": "FunctionOrClassName"
-}
+}}
 ### User Requirement:
 {requirement}
 ### Repository Map:

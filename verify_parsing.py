@@ -1,4 +1,5 @@
-import re
+import mcp_ai_worker.utils
+from mcp_ai_worker.utils import clean_code_output
 from loguru import logger
 import sys
 
@@ -10,47 +11,7 @@ class MockLogger:
         self.warnings.append(msg)
 
 logger = MockLogger()
-
-def clean_code_output(text: str) -> str:
-    """
-    A robust code parsing function.
-    It performs multi-stage extraction of XML tags, removal of Markdown, and cleansing of noise (explanatory text).
-    """
-    if not text:
-        return ""
-
-    cleaned = text.strip()
-
-    # 1. Extraction by XML tag (<draft_output>)
-    xml_pattern = re.compile(r"<draft_output>\s*\n?(.*?)\n?\s*</draft_output>", re.DOTALL | re.IGNORECASE)
-    match = xml_pattern.search(cleaned)
-    if match:
-        cleaned = match.group(1).strip()
-    else:
-        # Fallback: Recovery when tags are not closed due to token restrictions, etc.
-        partial_xml_pattern = re.compile(r"<draft_output>\s*\n?(.*)", re.DOTALL | re.IGNORECASE)
-        partial_match = partial_xml_pattern.search(cleaned)
-        if partial_match:
-            logger.warning("Unclosed <draft_output> tag detected. Rescuing partial content.")
-            cleaned = partial_match.group(1).strip()
-
-    # 2. Removing Markdown Code Blocks
-    md_pattern = re.compile(r"```(?:\w+)?\n?(.*?)\n?```", re.DOTALL)
-    md_match = md_pattern.search(cleaned)
-    if md_match:
-        cleaned = md_match.group(1).strip()
-    else:
-        # Fallback: simple stripping if not properly wrapped
-        cleaned = cleaned.replace("```python", "").replace("```", "").strip()
-
-    # 3. Final noise cleansing (only if the result is short and contains common phrases)
-    noise_phrases = ["Here is the updated code", "I have modified", "The following code"]
-    for phrase in noise_phrases:
-        if phrase in cleaned and len(cleaned.splitlines()) < 5:
-            cleaned = cleaned.replace(phrase, "")
-
-    return cleaned.strip()
-
+mcp_ai_worker.utils.logger = logger
 # Test cases
 test_cases = [
     {

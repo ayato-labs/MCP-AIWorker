@@ -8,7 +8,71 @@ from google import genai
 
 class SubLLMClient:
     @staticmethod
-    def get_gemini_client():
+    def format_request(prompt, system_prompt=None, temperature=0.7, max_tokens=1024):
+        """
+        Formats the input prompt and system instructions into a structured request payload 
+        compatible with the LLM API.
+
+        Args:
+            prompt (str): The primary user input or query to be processed by the model.
+            system_prompt (str, optional): Instructions to define the model's persona or 
+                behavioral constraints. Defaults to None.
+            temperature (float): Controls the randomness of the output. Higher values 
+                (e.g., 0.8) make the output more random, while lower values (e.g., 0.2) 
+                make it more deterministic. Defaults to 0.7.
+            max_tokens (int): The maximum number of tokens to generate in the completion. 
+                Defaults to 1024.
+
+        Returns:
+            dict: A dictionary containing the 'messages' list and sampling parameters 
+                required for the API call.
+        """
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": prompt})
+        
+        return {
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens
+        }
+
+    @staticmethod
+    def parse_response(response_data):
+        """
+        Extracts and cleans the generated text content from the raw API response object.
+
+        Args:
+            response_data (dict): The raw JSON response dictionary returned by the 
+                LLM provider's API.
+
+        Returns:
+            str: The stripped text content of the first generated completion choice.
+
+        Raises:
+            KeyError: If the response dictionary does not follow the expected 
+                provider schema (e.g., missing 'choices' or 'message').
+            IndexError: If the 'choices' list is empty.
+        """
+        return response_data['choices'][0]['message']['content'].strip()
+
+    @staticmethod
+    def validate_config(config):
+        """
+        Validates that the provided configuration dictionary contains all necessary 
+        credentials and endpoint settings.
+
+        Args:
+            config (dict): A dictionary containing configuration keys such as 
+                'api_key', 'base_url', and 'model_name'.
+
+        Returns:
+            bool: True if all required keys are present and have non-empty values, 
+                False otherwise.
+        """
+        required_keys = ['api_key', 'base_url', 'model_name']
+        return all(config.get(key) for key in required_keys)
         api_key = os.getenv("GOOGLE_API_KEY")
         if not api_key:
             raise ValueError("GOOGLE_API_KEY is not set in .env")
