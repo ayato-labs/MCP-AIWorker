@@ -3,7 +3,7 @@ import re
 import subprocess
 from pathlib import Path
 from typing import Optional
-from loguru import logger
+from mcp_ai_worker.logger import logger
 from mcp_ai_worker.client import SubLLMClient
 
 def load_prompt_template(filename: str) -> str:

@@ -3,7 +3,7 @@ import time
 import requests
 import subprocess
 from typing import Optional
-from loguru import logger
+from mcp_ai_worker.logger import logger
 from google import genai
 
 class SubLLMClient:
@@ -62,17 +62,13 @@ class SubLLMClient:
         """
         Validates that the provided configuration dictionary contains all necessary 
         credentials and endpoint settings.
-
-        Args:
-            config (dict): A dictionary containing configuration keys such as 
-                'api_key', 'base_url', and 'model_name'.
-
-        Returns:
-            bool: True if all required keys are present and have non-empty values, 
-                False otherwise.
         """
         required_keys = ['api_key', 'base_url', 'model_name']
         return all(config.get(key) for key in required_keys)
+
+    @staticmethod
+    def get_gemini_client():
+        """Returns a Gemini client using the API key from environment variables."""
         api_key = os.getenv("GOOGLE_API_KEY")
         if not api_key:
             raise ValueError("GOOGLE_API_KEY is not set in .env")

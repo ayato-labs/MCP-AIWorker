@@ -8,7 +8,7 @@ from typing import Optional
 from pathlib import Path
 from dotenv import load_dotenv
 from fastmcp import FastMCP
-from loguru import logger
+from mcp_ai_worker.logger import logger
 
 # Import sub-modules
 from mcp_ai_worker.client import SubLLMClient
@@ -30,10 +30,6 @@ load_dotenv(override=True)
 # Initialize FastMCP
 mcp = FastMCP("MCP-AIWorker")
 
-# Configure logger
-logger.remove()
-logger.add("mcp_server.log", rotation="10 MB", retention=2, serialize=True, level="DEBUG")
-logger.add("error.log", rotation="10 MB", retention=2, serialize=True, level="ERROR")
 
 
 @mcp.tool()
@@ -335,20 +331,17 @@ def main():
             mcp.run(transport="stdio")
         else:
             logger.info(f"Starting MCP Server on {bind_host}:{port} with transport: streamable-http")
-            print("\n" + "=" * 60)
-            print("MCP SERVER RUNNING (STREAMABLE HTTP)")
-            print(f"URL: http://{bind_host}:{port}/mcp")
-            print("-" * 60)
-            print("Claude Desktop Configuration Example:")
-            config_example = {
-                "mcpServers": {
-                    "mcp-ai-worker": {
-                        "url": f"http://{bind_host}:{port}/mcp"
-                    }
-                }
-            }
-            print(json.dumps(config_example, indent=2))
-            print("=" * 60 + "\n")
+            startup_msg = (
+                "\n" + "=" * 60 + 
+                "\nMCP SERVER RUNNING (STREAMABLE HTTP)" +
+                f"\nURL: http://{bind_host}:{port}/mcp" +
+                "\n" + "-" * 60 + 
+                "\nClaude Desktop Configuration Example:" +
+                f"\n{json.dumps({'mcpServers': {'mcp-ai-worker': {'url': f'http://{bind_host}:{port}/mcp'}}}, indent=2)}" +
+                "\n" + "=" * 60 + "\n"
+            )
+            print(startup_msg)
+            logger.info(startup_msg)
             mcp.run(transport="streamable-http", port=port, host=bind_host, stateless_http=True)
     except Exception:
         logger.exception("MCP Server crashed")
