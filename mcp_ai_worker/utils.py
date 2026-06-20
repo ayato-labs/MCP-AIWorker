@@ -55,7 +55,12 @@ def generate_repo_map(directory: str) -> str:
     except Exception as e:
         logger.error(f"Failed to generate repo map with grep-ast, using AST fallback: {e}")
         repo_map = []
-        for root, _, files in os.walk(directory):
+        for root, dirs, files in os.walk(directory):
+            # Skip common ignored directories
+            dirs[:] = [
+                d for d in dirs 
+                if d not in [".venv", ".git", "__pycache__", ".pytest_cache", ".ruff_cache", ".egg-info"]
+            ]
             for file in files:
                 if file.endswith(".py"):
                     full_path = os.path.join(root, file)
