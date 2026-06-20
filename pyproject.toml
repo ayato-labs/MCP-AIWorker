@@ -1,5 +1,5 @@
 [project]
-name = "sub-cheap-mcpaiagent"
+name = "mcp-ai-worker"
 version = "0.1.0"
 description = "An MCP server that delegates code drafting to inexpensive LLMs."
 authors = [{ name = "ayato-labs" }]
@@ -14,7 +14,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 
 [project.scripts]
-sub-cheap-mcp = "sub_cheap_mcpaiagent.server:main"
+mcp-ai-worker = "mcp_ai_worker.server:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]
@@ -22,7 +22,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["sub_cheap_mcpaiagent*"]
+include = ["mcp_ai_worker*"]
 
 [tool.ruff]
 line-length = 100
@@ -39,7 +39,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 # Helper scripts and tests already handled by global ignore, but kept for clarity or specific additions
 "list_gemini_models.py" = []
-"src/sub_cheap_mcpaiagent/list_gemini_models.py" = []
+"src/mcp_ai_worker/list_gemini_models.py" = []
 "tests/*" = []
 
 

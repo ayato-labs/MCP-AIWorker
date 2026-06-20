@@ -1,98 +1,126 @@
-# Sub-cheap-McpAiAgent
+# MCP-AIWorker
 
-**Sub-cheap-McpAiAgent** は、Claude 3.5 Sonnet などの高性能な「メインAI」のトークン消費量とコストを劇的に削減するために設計された、Model Context Protocol (MCP) サーバーです。
+[![CI](https://github.com/ayato-labs/MCP-AIWorker/actions/workflows/ci.yml/badge.svg)](https://github.com/ayato-labs/MCP-AIWorker/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-コードの初稿作成や技術コンテキストの翻訳といった、最もトークンを消費する「泥臭い作業」を安価なサブLLM（Google Gemini, ローカルの Ollama, または Genspark）に委譲します。メインAIは「指揮官（アーキテクト）」としての役割に専念させることができます。
+[English Version is here](README.md)
+
+**MCP-AIWorker** は、Claude 3.5 Sonnet などの高性能な「メインAI」のトークン消費量とAPIコストを劇的に削減するために設計された、Model Context Protocol (MCP) サーバーです。
+
+定型的なコードの下書き作成、日本語から英語へのコンテキスト翻訳、数千行に及ぶビルド・テストログの要約など、トークン消費が激しく機械的な作業を安価なサブLLM（Google Gemini Flash、ローカルのOllama、またはGenspark Search AI）に委譲（アウトソーシング）し、メインAIは意思決定とシステム設計（**Architect**）に専念させます。
+
+---
+
+## 💸 なぜ MCP-AIWorker なのか？
+
+AIエージェントによるテスト実行やソースコード全体の分析、リファクタリングなどの「試行錯誤ループ」は、コンテキストウィンドウを一瞬で消費し、高額なAPIコストを引き起こします。
+
+本プロジェクトの **Architect-Worker（設計者と作業者）分業パラダイム** は、以下のメリットをもたらします。
+*   **最大90%のコスト削減**: コード量が多くなりがちな下書き作成や翻訳処理を、無料枠のあるAPIやローカルモデルにオフロードします。
+*   **開発速度の向上**: メインAIとのやり取りに必要なデータペイロードサイズを抑え、思考ループを高速化します。
+*   **自己修復ループの排除**: 安価なモデル自身に完璧なコードを書かせるための、トークンを浪費するリトライ・検証ループを意図的に排除しています。サブLLMが出力した「叩き台（下書き）」を設計者（メインAI）が直接修正・インテグレーションすることで、最も効率よく安全な動作を実現します。
+
+---
+
+## 🏗️ Architect-Worker 分業モデル
+
+```
+                   +------------------------+
+                   |       メインAI         |
+                   |      (Architect)       |  <-- システム設計・最終検証
+                   +-----------+------------+
+                               |
+                       MCP Tool Calls
+                               v
+                   +-----------+------------+
+                   |      MCP-AIWorker      |
+                   +-----------+------------+
+                               |
+               +---------------+---------------+
+               |               |               |
+               v               v               v
+        +------------+   +------------+  +------------+
+        |   Gemini   |   |   Ollama   |  |  Genspark  |  <-- 安価・ローカルLLM
+        |   (API)    |   |  (ローカル)  |  |  (検索)    |      が泥臭いコーディング
+        +------------+   +------------+  +------------+      やログ要約を担当
+```
+
+---
 
 ## 🌟 主な機能
 
-- **「建築家とアルバイト」の役割分担**: メインAI（建築家）が設計し、サブLLM（アルバイト）がコードを書くという分担に特化した設計。
-- **Streamable HTTP (SSE) トランスポート**: 複数のAIエージェントによる並列実行に対応。Stdio 方式の「1対1」の制限を解消しました。
-- **マルチバックエンド対応**: `.env` の設定一つで、**Google Gemini**, **ローカルの Ollama**, **Genspark (検索AI)** を自由に使い分け可能です。
-- **ドラフト優先パイプライン**:
-    1. **翻訳**: 日本語の指示を自動で英語に変換。
-    2. **圧縮**: 大規模なコードコンテキストを動的に要約。
-    3. **下書き**: アーキテクトが洗練させるための「叩き台（ドラフト）」品質のコードを生成。
-- **堅牢な運用**: ステートレスHTTPモード、ホスト名ベースのエンドポイント、100文字制限のコードスタイルを採用。
+*   **設計と実装の分離**: 下書きの作成処理をサブLLMに外部委託し、メインAIは高次元の設計と結合テストのみを管理します。
+*   **Streamable HTTP (SSE) トランスポート**: FastMCPを採用したSSEトランスポートにより、複数のサブエージェントや複数スレッドからのツール並行実行に対応。従来のstdioによる1対1接続の制限を突破しています。
+*   **堅牢なコード抽出パイプライン**: XMLタグマークアップ、切り捨てやタグ未クローズ時のコード救済処理、Markdownブロックへの自動フォールバック処理を組み合わせた多段階のパース制御。
+*   **英語翻訳パイプライン**: 日本語での指示や参照コード内のコメントを自動的に英語へ翻訳してからサブLLMに渡すことで、モデルの理解度を最大化しトークン数を圧縮します。
+*   **コンテキスト圧縮**: 長大な参照コードを構造（関数シグネチャ、型定義）を維持したまま最小限のロジックに自動圧縮します。
+*   **実行ログ要約**: ビルドやテスト実行などのコマンドを実行し、数百行に上る標準出力・エラー出力を安価なサブLLMで要約。必要なエラー原因のみをメインAIへ送り返すことで、トークン枠を強力に保護します。
 
-## 🏗️ 設計思想
-
-本プロジェクトの根幹は **「建築家とアルバイト」** モデルです：
-- **メインAI（あなた）は建築家**: 高度な推論、設計、最終的な品質責任を負います。
-- **サブLLMはアルバイト**: 指示に従ってコードをタイピングする「泥臭い作業」を担当します。
-- **「叩き台（ドラフト）」品質の許容**: サブLLMの出力が完璧である必要はありません。多少のミスや不足は「ドラフト」として許容し、建築家が最終的に清書することで、システムをシンプルかつ高速に保ちます。
+---
 
 ## 🚀 クイックスタート (Windows)
 
-1.  **セットアップ**:
-    `setup.bat` を実行して依存関係をインストールします（`uv` を使用）。
+### 1. 環境構築
+`uv` を利用し、ローカルの仮想環境へ依存関係をインストールします。
+```bash
+setup.bat
+```
 
-2.  **環境変数の設定**:
-    `.env.example` を参考に `.env` ファイルを作成します。
-    ```env
-    AI_PROVIDER=gemini
-    GOOGLE_API_KEY=あなたのキー
-    ```
+### 2. 環境変数の設定 (`.env`)
+`.env.example` をコピーして `.env` ファイルを作成します。
+```env
+AI_PROVIDER=gemini
+GOOGLE_API_KEY=your-api-key-here
+```
 
-3.  **サーバーの起動**:
-    `run.bat` を実行します。サーバーが `http://127.0.0.1:10300/mcp` で起動します。**このウィンドウは開いたままにしてください。**
+### 3. サーバーの起動
+起動スクリプトを実行します。
+```bash
+run.bat
+```
+サーバーが `http://127.0.0.1:10300/mcp` で起動します。窓を開けたままにしてください。
 
-4.  **Claude Desktop への登録**:
-    `claude_desktop_config.json` に URL を追加します：
-    ```json
-    {
-      "mcpServers": {
-        "sub-cheap-mcp": {
-          "url": "http://127.0.0.1:10300/mcp"
-        }
-      }
+### 4. Claude Desktop への登録
+設定ファイル (`claude_desktop_config.json`) にエンドポイントを追記します。
+```json
+{
+  "mcpServers": {
+    "mcp-ai-worker": {
+      "url": "http://127.0.0.1:10300/mcp"
     }
-    ```
+  }
+}
+```
 
-### ツール呼び出しの例
-メインAI（Claude）は以下のようにツールを呼び出します：
-- **path**: `C:\Absolute\Path\To\src\main.py` (**必ず絶対パスで指定してください**)
-- **instruction**: `ドキュメント文字列を追加し、正規表現による validate_input メソッドを実装して。`
-- **start_line**: 20
-- **end_line**: 35
-- **reference_context**: (関連するクラスやユーティリティのコードスニペットなど、任意)
+---
 
-> [!IMPORTANT]
-> **パスの要件**: `path` パラメータには必ず絶対パスを使用してください。相対パスを使用すると、サーバーがファイルを正しく特定できず、読み書きに失敗する可能性があります。
+## 🛠️ 提供されるツール
 
-- [ADR-0008: AIプロバイダーの明示的指定](docs/ADR/ADR-0008-explicit-ai-provider-configuration.md)
-- [ADR-0009: Genspark CLI の統合](docs/ADR/ADR-0009-adoption-of-genspark-ai-provider.md)
-- [ADR-0010: 建築家とアルバイトの分担モデル](docs/ADR/ADR-0010-architect-parttimer-delegation-model.md)
-- [ADR-0011: Streamable HTTP への移行](docs/ADR/ADR-0011-switch-to-http-transport.md)
-- [すべてのADRを表示](docs/ADR/)
+### `draft_code`
+指定したファイルの特定行範囲にコードの下書き（叩き台）を作成し、書き込みます。
+*   **path**: 対象ファイルの絶対パス。
+*   **instruction**: コードの変更指示や追加要件。
+*   **start_line / end_line** (オプション): 置換対象の行範囲。
+*   **reference_context** (オプション): モデルに参照させたい関連クラスやユーティリティコード。
 
+### `find_and_draft_edit`
+リポジトリ全体を `grep-ast` 等でスキャンして影響箇所を特定し、そのファイルおよびクラスをピンポイントで抽出して修正の下書きを作成・書き込みます。
 
-## 🗺️ ロードマップと将来の展望
+### `execute_command`
+指定したコマンド（テスト、静的解析など）を実行し、その実行結果ログをサブLLMで簡潔なサマリーに要約して返します。
 
-**現在のフェーズ (個人開発者向けMVP):**
-現在、モデルのルーティングは `.env` ファイルによる明示的な指定に依存しています。これは、ユーザー自身がAPIキーを持ち込む「BYOK（Bring Your Own Key）」環境やローカル環境での実行を前提とした意図的な設計です。タスクの難易度を自動判定して高価なモデルへ勝手に切り替えたり、マシンのVRAMを超えるモデルをロードしたりする「自動タスクルーター」は導入していません。これにより、ユーザーはAPIコストとローカルリソースを100%制御し続けることができます。
+---
 
-**将来のSaaSフェーズ:**
-マネージドなSaaSプラットフォームへと進化する際には、以下の実装を計画しています：
-- **インテリジェント・タスクルーター**: プロンプトの複雑さを自動評価し、利益率とパフォーマンスを最大化するためにTier 1（Flash等）とTier 2（Pro/Opus等）のモデル間で自動ルーティングを行います。
-- **自動QAリトライループ**: 静的解析（Semgrep等）に基づいてエラーを検知し、メインAIに結果を返す前にサブエージェント内部で自動修正ループを回します。
+## 📄 アーキテクチャ決定レコード (ADR)
 
-## 🏢 商用・ビジネス利用への対応 (Commercial & Business Use Ready)
+トレードオフと設計決定の記録：
+*   [ADR-0010: Architect-Worker 分業モデル](docs/ADR/ADR-0010-architect-parttimer-delegation-model.md)
+*   [ADR-0011: Streamable HTTP 移行](docs/ADR/ADR-0011-switch-to-http-transport.md)
+*   [ADR-0012: 出力制御とタグ救済](docs/ADR/ADR-0012-robust-output-control-and-prompt-externalization.md)
+*   [ADR-0013: 実行ログ要約エンジン](docs/ADR/ADR-0013-terminal-execution-log-summarization.md)
 
-本プロジェクトは、企業のビジネス環境やプロプライエタリなシステム内でも安全にご利用いただけるよう、コピーレフト型ライセンス（GPLなど）を排除し、寛容なオープンソースライセンス（Permissive License: MIT, Apache 2.0, BSD）の技術スタックのみで構築されています。
-
-**依存ソフトウェア・ライセンス一覧:**
-*   **[Ollama](https://github.com/ollama/ollama/blob/main/LICENSE)** (Local LLM Server): `MIT License`
-*   **[FastMCP](https://github.com/jlowin/fastmcp/blob/main/LICENSE)** (MCP Framework): `MIT License`
-*   **[google-genai](https://github.com/googleapis/python-genai/blob/main/LICENSE)** (Gemini SDK): `Apache License 2.0`
-*   **[requests](https://github.com/psf/requests/blob/main/LICENSE)** (HTTP Client): `Apache License 2.0`
-*   **[loguru](https://github.com/Delgan/loguru/blob/master/LICENSE)** (Logging): `MIT License`
-*   **[python-dotenv](https://github.com/theskumar/python-dotenv/blob/main/LICENSE)** (Env Config): `BSD-3-Clause`
-
-> **⚠️ 免責事項 (Important Disclaimer): AIモデル（重み）、API利用規約、およびライセンスの最終確認について**
-> 1. **AIモデルとAPI**: 本MCPサーバーおよび上記の依存ソフトウェアはすべて商用利用可能なライセンスですが、**バックエンドとして呼び出す「AIモデル（重みデータ）」や「外部APIサービス」のライセンスおよび利用規約は、各プロバイダーに依存します。** 例：Ollama経由で使用するローカルモデル（Gemma, Llama等）や、Google AI StudioのAPI規約については、お客様のビジネス要件（MAU上限、商用利用の可否など）に合致するか各自でご確認ください。
-> 2. **最終確認の責任**: 本ドキュメントのライセンス情報の正確性には万全を期しておりますが、**実際の商用・ビジネス利用におけるすべてのソフトウェアおよびモデルのライセンス適合性に関する「最終的な確認と遵守の責任」は、全面的にお客様（使用者）ご自身にあるものとします。**
+---
 
 ## ⚖️ ライセンス
 
-MIT License. 詳細は [LICENSE](LICENSE) をご覧ください。
+MIT License。詳細は [LICENSE](LICENSE) を参照してください。

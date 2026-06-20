@@ -1,5 +1,5 @@
 import pytest
-from sub_cheap_mcpaiagent.server import clean_code_output, draft_code
+from mcp_ai_worker.server import clean_code_output, draft_code
 
 
 def test_clean_code_output_removes_markdown():
@@ -23,7 +23,7 @@ def test_clean_code_output_unclosed_markdown():
 def mock_backend(mocker):
     # Mock call_any to return different values based on the role or just a default
     return mocker.patch(
-        "sub_cheap_mcpaiagent.server.SubLLMClient.call_any", return_value="def mock_func():\n    return 42"
+        "mcp_ai_worker.server.SubLLMClient.call_any", return_value="def mock_func():\n    return 42"
     )
 
 

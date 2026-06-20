@@ -8,7 +8,7 @@ if not exist .venv (
     exit /b 1
 )
 
-echo Starting Sub-cheap-McpAiAgent (Transport: Streamable HTTP)...
+echo Starting MCP-AIWorker (Transport: Streamable HTTP)...
 
 :: Use python directly from venv to avoid locking issues
 .venv\Scripts\python.exe mcp_server.py

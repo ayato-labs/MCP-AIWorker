@@ -1,104 +1,126 @@
-# Sub-cheap-McpAiAgent
+# MCP-AIWorker
 
-[![CI](https://github.com/ayato-labs/Sub_cheap_McpAiAgent/actions/workflows/ci.yml/badge.svg)](https://github.com/ayato-labs/Sub_cheap_McpAiAgent/actions/workflows/ci.yml)
+[![CI](https://github.com/ayato-labs/MCP-AIWorker/actions/workflows/ci.yml/badge.svg)](https://github.com/ayato-labs/MCP-AIWorker/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/ayato-labs/MCP-AIWorker/pulls)
 
 [日本語版はこちら (Japanese Version)](README_JA.md)
 
-**Sub-cheap-McpAiAgent** is a Model Context Protocol (MCP) server designed to drastically reduce the token consumption and costs of high-performance "Frontier" models (like Claude 3.5 Sonnet). 
+**MCP-AIWorker** is a Model Context Protocol (MCP) server built to slash API token consumption and development costs of high-performance "Frontier" models (like Claude 3.5 Sonnet).
 
-It delegates token-heavy tasks—such as drafting code or translating context—to inexpensive sub-LLMs (Google Gemini, local Ollama, or Genspark), while keeping the Main AI in control as the **Architect**.
+By delegating token-heavy, mechanical tasks—such as drafting repetitive code, JA-to-EN context translations, and summarizing massive log outputs—to inexpensive sub-LLMs (Google Gemini Flash, local Ollama, or Genspark Search AI), the Main AI remains focused on what it does best: acting as the high-level **System Architect**.
+
+---
+
+## 💸 Why MCP-AIWorker?
+
+As AI agents perform file-wide analysis and compile-run-debug loops, they read and write large files and logs, quickly exhausting your context window and API budget. 
+
+By splitting the workload into the **Architect-Worker Paradigm**, you get:
+*   **Up to 90% Cost Reduction**: Offloads structural coding and translation tasks to free/low-cost tiers.
+*   **Faster Iteration**: Reduces network payloads and speeds up the core planning loop.
+*   **No Infinite Loops**: Explicitly rejects complex, token-wasting internal QA loops inside the sub-LLM. The Architect AI inspects the draft and corrects integrations directly, keeping it fast and predictable.
+
+---
+
+## 🏗️ The Architect-Worker Paradigm
+
+```
+                   +------------------------+
+                   |    Main AI Agent       |
+                   |      (Architect)       |  <-- High-level Reasoning & Design
+                   +-----------+------------+
+                               |
+                       MCP Tool Calls
+                               v
+                   +-----------+------------+
+                   |      MCP-AIWorker      |
+                   +-----------+------------+
+                               |
+               +---------------+---------------+
+               |               |               |
+               v               v               v
+        +------------+   +------------+  +------------+
+        |   Gemini   |   |   Ollama   |  |  Genspark  |  <-- Cheap / Local LLMs
+        |   (API)    |   |  (Local)   |  | (Search)   |      for Heavy Typing & Logs
+        +------------+   +------------+  +------------+
+```
+
+---
 
 ## 🌟 Key Features
 
-- **Architect-Part-timer Division of Labor**: Specifically designed for a workflow where the Main AI (Architect) designs and the Sub-LLM (Part-timer) drafts code.
-- **Streamable HTTP (SSE) Transport**: Supports parallel execution by multiple AI agents, breaking the 1:1 limitation of Stdio.
-- **Multi-Backend Support**: Seamlessly switch between **Google Gemini**, **local Ollama**, or **Genspark (Search AI)** via `.env`.
-- **Draft-First Pipeline**:
-    1. **Translation**: Auto-converts JA instructions to English.
-    2. **Compression**: Dynamically shrinks large code contexts.
-    3. **Drafting**: Generates "Draft-quality" (叩き台) code snippets for the Architect to refine.
-- **Enterprise-Ready**: Stateless HTTP mode for robustness, hostname-based endpoints, and 100 char line limit code style.
+*   **Architect-Worker Separation**: Outsource tedious code drafting while keeping you (or the main AI) in absolute control.
+*   **Streamable HTTP (SSE) Transport**: FastMCP-powered SSE transport allowing concurrent connections and parallel execution from multiple sub-agents, bypassing legacy stdio 1:1 constraints.
+*   **Robust Code Extraction Engine**: Multi-stage parsing utilizing XML tag markers, recovery checks (rescuing truncated or unclosed model outputs), and fallback markdown parser.
+*   **Translation Pipeline**: Seamless automatic translation of non-English prompts and reference contexts into clean English, enhancing sub-LLM comprehension.
+*   **Context Compressor**: Intelligently compresses large reference contexts (classes, interfaces) to fit model limits while retaining structural logic.
+*   **Log Summarization**: Runs terminal commands and summarizes hundreds of lines of raw test/build logs into small, actionable summaries for the main AI.
 
-## 🏗️ Architecture Philosophy
-
-The core philosophy is **"The Architect and the Part-timer"**:
-- **The Main AI (YOU) is the Architect**: You do the heavy thinking and design.
-- **The Sub-LLM is the Part-timer**: It does the heavy lifting of typing code.
-- **"Draft" Quality is Okay**: We explicitly accept that the Sub-LLM output is a "draft" (叩き台). The Architect (Main AI) is responsible for final QA and integration. This prevents expensive internal QA loops and keeps the system simple and fast.
+---
 
 ## 🚀 Quick Start (Windows)
 
-1.  **Setup Environment**:
-    Run `setup.bat` to install dependencies (uses `uv`).
+### 1. Setup Environment
+Run the setup batch file to install dependencies inside a local virtual environment managed by `uv`:
+```bash
+setup.bat
+```
 
-2.  **Configure `.env`**:
-    Create `.env` based on `.env.example`.
-    ```env
-    AI_PROVIDER=gemini
-    GOOGLE_API_KEY=your_key
-    ```
+### 2. Configure `.env`
+Create a `.env` file from the provided example:
+```env
+AI_PROVIDER=gemini
+GOOGLE_API_KEY=your-api-key-here
+```
 
-3.  **Run the Server**:
-    Execute `run.bat`. The server will start on `http://127.0.0.1:10300/mcp`. **Keep this window open.**
+### 3. Start the Server
+Run the startup script:
+```bash
+run.bat
+```
+The server will boot on `http://127.0.0.1:10300/mcp`.
 
-4.  **Register with Claude Desktop**:
-    Add the URL to your `claude_desktop_config.json`:
-    ```json
-    {
-      "mcpServers": {
-        "sub-cheap-mcp": {
-          "url": "http://127.0.0.1:10300/mcp"
-        }
-      }
+### 4. Connect to Claude Desktop
+Add the server endpoint to your `claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "mcp-ai-worker": {
+      "url": "http://127.0.0.1:10300/mcp"
     }
-    ```
+  }
+}
+```
 
-### Example Tool Call
-The Main AI (Claude) will call the tool as follows:
-- **path**: `C:\Absolute\Path\To\src\main.py` (**MUST be an absolute path**)
-- **instruction**: `Add a docstring and implement the validate_input method with basic regex.`
-- **start_line**: 20
-- **end_line**: 35
-- **reference_context**: (Optional snippets of related classes/utilities)
+---
 
-> [!IMPORTANT]
-> **Path Requirement**: Always use absolute paths for the `path` parameter. Relative paths can lead to errors when the server attempts to read or write files.
+## 🛠️ MCP Tools Exposed
 
-## 📄 Decision Records (ADR)
+### `draft_code`
+Delegates localized code drafting in a file to an inexpensive sub-LLM.
+*   **path** (string): Absolute path to the file.
+*   **instruction** (string): Code changes or feature requirements.
+*   **start_line / end_line** (optional integer): Line range to replace.
+*   **reference_context** (optional string): Surrounding class or utility code for the model to reference.
 
-- [ADR-0008: Explicit AI Provider Config](docs/ADR/ADR-0008-explicit-ai-provider-configuration.md)
-- [ADR-0009: Genspark CLI Integration](docs/ADR/ADR-0009-adoption-of-genspark-ai-provider.md)
-- [ADR-0010: Architect-Part-timer Model](docs/ADR/ADR-0010-architect-parttimer-delegation-model.md)
-- [ADR-0011: Switch to Streamable HTTP](docs/ADR/ADR-0011-switch-to-http-transport.md)
-- [View all ADRs](docs/ADR/)
+### `find_and_draft_edit`
+Runs directory-wide targeting. It scans the repository using `grep-ast` to pinpoint classes or functions, maps them, and writes the draft modifications.
 
+### `execute_command`
+Executes terminal commands (e.g. testing, linting) and delegates the lengthy stdout/stderr output to a sub-LLM for a concise summary. Saves valuable context window tokens.
 
-## 🗺️ Roadmap & Future Vision
+---
 
-**Current Phase (MVP for Individual Developers):**
-The project currently relies on explicit `.env` settings for model routing. This is an intentional design choice for a "Bring Your Own Key" (BYOK) environment and local executions. We do not use automated "Task Routers" that might silently upgrade to expensive models or load local models that exceed your hardware's VRAM. This ensures you maintain 100% control over your API costs and local resources.
+## 📄 Architecture Decision Records (ADRs)
 
-**Future SaaS Phase:**
-When evolving into a managed SaaS platform, we plan to implement:
-- **Intelligent Task Router**: Automatically assessing prompt complexity to route between Tier 1 (Flash) and Tier 2 (Pro/Opus) models to maximize margin and performance.
-- **Automated QA Retry Loops**: Re-rolling failed generation attempts based on static analysis (e.g., Semgrep) before returning the payload to the Main AI.
+We document our design trade-offs:
+*   [ADR-0010: Architect-Worker Delegation Model](docs/ADR/ADR-0010-architect-parttimer-delegation-model.md)
+*   [ADR-0011: Streamable HTTP Transport](docs/ADR/ADR-0011-switch-to-http-transport.md)
+*   [ADR-0012: Output Control & XML Rescuing](docs/ADR/ADR-0012-robust-output-control-and-prompt-externalization.md)
+*   [ADR-0013: Log Summarization Engine](docs/ADR/ADR-0013-terminal-execution-log-summarization.md)
 
-## 🏢 Commercial & Business Use Ready
-
-This project is built entirely on permissive open-source licenses (MIT, Apache 2.0, BSD), ensuring it can be safely integrated into commercial, enterprise, or proprietary workflows without copyleft (GPL) contamination risks.
-
-**Dependency License Map:**
-*   **[Ollama](https://github.com/ollama/ollama/blob/main/LICENSE)** (Local LLM Server): `MIT License`
-*   **[FastMCP](https://github.com/jlowin/fastmcp/blob/main/LICENSE)** (MCP Framework): `MIT License`
-*   **[google-genai](https://github.com/googleapis/python-genai/blob/main/LICENSE)** (Gemini SDK): `Apache License 2.0`
-*   **[requests](https://github.com/psf/requests/blob/main/LICENSE)** (HTTP Client): `Apache License 2.0`
-*   **[loguru](https://github.com/Delgan/loguru/blob/master/LICENSE)** (Logging): `MIT License`
-*   **[python-dotenv](https://github.com/theskumar/python-dotenv/blob/main/LICENSE)** (Env Config): `BSD-3-Clause`
-
-> **⚠️ Important Disclaimer: AI Model Weights, API Terms, and License Verification**
-> 1. **AI Models & APIs**: While this MCP server and its software dependencies are commercially viable, **the licenses and terms of service (TOS) for the actual AI models (weights) and external APIs you connect to are governed by their respective providers.** For example, if you load models via Ollama (e.g., Llama 3, Gemma) or use Google AI Studio APIs, you must ensure your use case complies with Meta's, Google's, or the respective creator's commercial licensing terms.
-> 2. **Final Verification**: While we have made every effort to list the correct licenses for our dependencies, **the ultimate responsibility for verifying and complying with all software and model licenses for your specific business use case rests entirely with you (the user).**
+---
 
 ## ⚖️ License
 
