@@ -89,3 +89,9 @@ The `fetch_and_summarize_url` tool uses a sub-LLM to compress web content into a
 - **error.log**: Dedicated log file for error isolation.
 - **run_id**: Each request is tagged with a unique UUID for easy tracking.
 
+## 7. Unit Test Generation Configuration
+The `generate_unit_tests` tool leverages the Architect-Worker paradigm to generate robust, isolated unit tests.
+- **Architect-Enforced Specification**: The Main AI (Architect) should analyze the source code and provide specific test matrix requirements (e.g., Happy/Boundary/Negative paths) via the `additional_instruction` parameter.
+- **AAA Pattern**: The tool enforces the Arrange-Act-Assert pattern via system-level prompting.
+- **Isolation**: The sub-LLM is explicitly instructed to mock all external dependencies (Database, API, File System) to ensure tests remain isolated.
+

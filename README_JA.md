@@ -114,6 +114,13 @@ run.bat
 *   **url** (string): 取得する絶対 HTTPS URL。
 *   **instruction** (オプション string): 要約時に特定してほしいフォーカス指示。
 
+### `generate_unit_tests`
+ソースファイルを読み込み、AAA (Arrange-Act-Assert) パターンに基づいて隔離されたユニットテストを生成します。サブLLMを使用してテスト計画を立て、その後実行可能なテストコードを作成します。
+*   **source_file_path** (string): ソースファイルの絶対パス。
+*   **output_dir_path** (string): テストファイルを保存するディレクトリの絶対パス。
+*   **test_framework** (string, デフォルト "pytest"): 使用するテストフレームワーク。
+*   **additional_instruction** (string, オプション): フォーカスすべき特定のテストケースやエッジケース。
+
 
 ---
 

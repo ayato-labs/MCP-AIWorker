@@ -115,6 +115,13 @@ Extracts text content from a specified HTTPS URL and generates an accurate summa
 *   **url** (string): Absolute HTTPS URL to fetch.
 *   **instruction** (optional string): Specific focus request for the summary.
 
+### `generate_unit_tests`
+Reads a source file and generates isolated unit tests based on the AAA (Arrange-Act-Assert) pattern, utilizing a sub-LLM to create a test plan followed by executable test code.
+*   **source_file_path** (string): Absolute path to the source file.
+*   **output_dir_path** (string): Absolute path to save the generated test file.
+*   **test_framework** (string, default "pytest"): The testing framework to use.
+*   **additional_instruction** (string, optional): Specific test cases or edge cases to focus on.
+
 
 ---
 
@@ -125,6 +132,8 @@ We document our design trade-offs:
 *   [ADR-0011: Streamable HTTP Transport](docs/ADR/ADR-0011-switch-to-http-transport.md)
 *   [ADR-0012: Output Control & XML Rescuing](docs/ADR/ADR-0012-robust-output-control-and-prompt-externalization.md)
 *   [ADR-0013: Log Summarization Engine](docs/ADR/ADR-0013-terminal-execution-log-summarization.md)
+*   [ADR-0016: URL Text Extraction and Summarization](docs/ADR/ADR-0016-url-text-extraction-and-summarization.md)
+*   [ADR-0017: Unit Test Generation Tool](docs/ADR/ADR-0017-unit-test-generation-tool.md)
 
 ---
 
