@@ -7,10 +7,14 @@ from pathlib import Path
 from loguru import logger
 
 
+# Terminal format (human-readable)
+CONSOLE_FORMAT = "<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>"
+
 def setup_logger():
     """
-    Configures the logger to provide structured JSON logging.
-    Maintains only the two most recent execution log files.
+    Configures the logger.
+    - Console: Human-readable format, level INFO+.
+    - File: JSON-serialized format, level DEBUG+.
     """
     log_dir = "logs"
     os.makedirs(log_dir, exist_ok=True)
@@ -26,13 +30,13 @@ def setup_logger():
     # Remove default Loguru handler
     logger.remove()
 
-    # Console handler - Structured JSON
-    logger.add(sys.stderr, serialize=True, level="INFO", backtrace=True, diagnose=True)
+    # Console handler - Human-readable
+    logger.add(sys.stderr, format=CONSOLE_FORMAT, level="INFO", backtrace=False, diagnose=False)
 
-    # File handler - Structured JSON, new file per execution
+    # File handler - Structured JSON (AI-readable)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     log_path = os.path.join(log_dir, f"execution_{timestamp}.log")
-    logger.add(log_path, serialize=True, level="INFO", backtrace=True, diagnose=True)
+    logger.add(log_path, serialize=True, level="DEBUG", backtrace=True, diagnose=True)
 
 
 def log_token_usage(provider: str, model_name: str, input_tokens: int, output_tokens: int):

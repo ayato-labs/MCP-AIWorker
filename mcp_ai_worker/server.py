@@ -39,9 +39,10 @@ mcp = FastMCP("MCP-AIWorker")
 @track_metrics
 def find_and_draft_edit(requirement: str, target_dir: str) -> str:
     """
-    [Architect vs. Part-timer]
-    Automatically finds areas to edit throughout the entire directory and creates a draft of the code corrections.
-    Saves the token cost of the main AI reading the entire file.
+    [Role]: Automatically find and edit code across the directory.
+    [Use Case]: Refactoring, bug fixes, or implementing features across multiple files.
+    [Trigger]: When a task requires modifications to existing code or entities without manual file searching.
+    [Benefit for Architect]: Saves tokens and time by delegating file identification and draft generation to a sub-LLM.
     """
     run_id = str(uuid.uuid4())
     start_total_time = time.perf_counter()
@@ -121,15 +122,10 @@ def is_command_safe(command: str) -> bool:
 @track_metrics
 def execute_command(command: str, working_dir: Optional[str] = None, timeout_seconds: int = 90) -> str:
     """
-    [Architect vs. Part-timer]
-    Executes terminal commands and summarizes the resulting lengthy raw logs
-    (standard output/error output) using an inexpensive sub-LLM,
-    and returns only the important points (error causes and execution results) to YOU (main AI).
-
-    ### CRITICAL WARNING FOR YOU (THE ARCHITECT)
-    - This tool is for saving YOU tokens. Use it for building, testing, and running Lint.
-    - [WARNING] This tool has limited security restrictions to prevent accidental damage.
-    - Never issue commands that could lead to directory deletion or system corruption. You are solely responsible.
+    [Role]: Execute terminal commands and provide concise, LLM-summarized output.
+    [Use Case]: Building, testing, linting, or any system-level operations.
+    [Trigger]: When you need to verify code, run tests, or perform external system interactions.
+    [Benefit for Architect]: Saves tokens by delegating long log analysis to a sub-LLM, presenting only actionable insights.
     """
     logger.info(f"Executing command: {command} in {working_dir or 'current dir'}")
 
@@ -204,22 +200,13 @@ def draft_code(
     model: Optional[str] = None,
 ) -> str:
     """
-    Delegates heavy-lifting code drafting to an inexpensive sub-LLM to save YOUR tokens.
+    [Role]: Delegate heavy-lifting code drafting to an inexpensive sub-LLM.
+    [Use Case]: Generating, modifying, or refactoring code snippets within a specific file.
+    [Trigger]: When you need to write or update code based on instructions and existing context.
+    [Benefit for Architect]: Saves tokens and reduces manual typing by having a sub-LLM handle the drafting, allowing you to focus on final QA.
 
     ### CRITICAL: Path Requirement
     - **path** MUST be an **absolute path**. Relative paths will cause errors.
-
-    ### Role: Architect vs. Part-timer
-    - YOU (the Main AI) are the **Architect**: Responsible for high-level design and final QA.
-    - SUB-LLM is the **Part-timer**: Responsible for localized typing and drafting.
-
-    ### Strategy
-    - Delegate tedious file modifications or first-draft generation to this tool.
-    - Provide clear instructions and necessary context (reference_context).
-    - **CRITICAL**: Expect a "draft" (叩き台). The result may have minor logical gaps.
-    - **CRITICAL**: YOU must review the output and fix any integration issues.
-
-    The pipeline includes auto-translation (JA->EN) and context compression.
     """
     run_id = str(uuid.uuid4())
     start_total_time = time.perf_counter()
@@ -237,15 +224,19 @@ def draft_code(
                 return "Error reading file."
 
             # --- 1. TRANSLATION PHASE ---
+            start_trans = time.perf_counter()
             instruction = translate_to_english(instruction)
             if reference_context:
                 reference_context = translate_to_english(reference_context)
+            logger.info(f"Translation phase took {time.perf_counter() - start_trans:.2f}s")
 
             # --- 2. DATA LOADING ---
+            start_load = time.perf_counter()
             try:
                 target_snippet, full_content = _load_target_snippet(file_path, start_line, end_line)
             except Exception:
                 return "Error reading file."
+            logger.info(f"Data loading phase took {time.perf_counter() - start_load:.2f}s")
 
             # --- 3. COMPRESSION PHASE (Conditional) ---
             provider = os.getenv("DRAFTING_PROVIDER")
@@ -359,13 +350,10 @@ def generate_unit_tests(
     model: Optional[str] = None,
 ) -> str:
     """
-    [Architect vs. Part-timer]
-    Reads a specified source file, generates isolated unit tests based on strict AAA patterns,
-    and saves the test file to the designated absolute directory.
-
-    ### CRITICAL INSTRUCTION FOR ARCHITECT (YOU):
-    - You MUST use `additional_instruction` to specify WHICH edge cases or specific methods to focus on.
-    - Do NOT ask for integration tests. The Sub-LLM will explicitly mock all external dependencies.
+    [Role]: Generate isolated unit tests for source code.
+    [Use Case]: Ensuring code quality and verifying functionality through automated tests.
+    [Trigger]: When you need to write tests for a new feature, a bug fix, or existing code.
+    [Benefit for Architect]: Ensures code quality by adhering to strict AAA patterns and mocking external dependencies automatically.
     """
     run_id = str(uuid.uuid4())
 
@@ -415,12 +403,10 @@ def generate_unit_tests(
 @track_metrics
 def fetch_and_summarize_url(url: str, instruction: Optional[str] = None) -> str:
     """
-    [Architect vs. Part-timer]
-    Extracts text content from a specified HTTPS URL and generates an accurate summary using a sub-LLM.
-    This saves massive token overhead for YOU (the main AI) by avoiding reading large, raw web pages.
-
-    CRITICAL WARNING: Pages utilizing client-side dynamic rendering (SPAs) will fail to parse.
-    If a failure occurs, fall back to manual copy-pasting from your host browser.
+    [Role]: Extract and summarize text content from a specified HTTPS URL.
+    [Use Case]: Gathering information from documentation, web pages, or online resources.
+    [Trigger]: When you need external knowledge that is not present in the codebase.
+    [Benefit for Architect]: Saves massive token overhead by avoiding reading large, raw web pages, focusing only on relevant, summarized information.
     """
     run_id = str(uuid.uuid4())
     start_time = time.perf_counter()
