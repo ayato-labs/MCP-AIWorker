@@ -1,0 +1,100 @@
+[
+  {
+    "timestamp": "2026-06-21T08:44:37.735582",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 254494,
+    "output_tokens": 759
+  },
+  {
+    "timestamp": "2026-06-21T08:45:53.318784",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 425,
+    "output_tokens": 238
+  },
+  {
+    "timestamp": "2026-06-21T08:46:27.563216",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 894,
+    "output_tokens": 219
+  },
+  {
+    "timestamp": "2026-06-21T08:47:02.064198",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 586,
+    "output_tokens": 241
+  },
+  {
+    "timestamp": "2026-06-21T08:47:34.115506",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 496,
+    "output_tokens": 192
+  },
+  {
+    "timestamp": "2026-06-21T08:48:04.043114",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 328,
+    "output_tokens": 269
+  },
+  {
+    "timestamp": "2026-06-21T08:51:45.560185",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 809,
+    "output_tokens": 319
+  },
+  {
+    "timestamp": "2026-06-21T08:53:16.503868",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 1386,
+    "output_tokens": 388
+  },
+  {
+    "timestamp": "2026-06-21T08:53:48.663669",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 564,
+    "output_tokens": 197
+  },
+  {
+    "timestamp": "2026-06-21T08:56:00.903625",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 4264,
+    "output_tokens": 357
+  },
+  {
+    "timestamp": "2026-06-21T15:27:55.382293",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 313,
+    "output_tokens": 34
+  },
+  {
+    "timestamp": "2026-06-21T15:28:33.261079",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 346,
+    "output_tokens": 34
+  },
+  {
+    "timestamp": "2026-06-21T15:30:29.635765",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 209,
+    "output_tokens": 172
+  },
+  {
+    "timestamp": "2026-06-21T15:34:57.785530",
+    "provider": "gemini",
+    "model": "models/gemma-4-31b-it",
+    "input_tokens": 3606,
+    "output_tokens": 3474
+  }
+]
