@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch
-from mcp_ai_worker.server import draft_code, execute_command, find_and_draft_edit
+from mcp_ai_worker.server import draft_edit, execute_command, find_target
 
 
 @pytest.fixture
@@ -8,35 +8,35 @@ def mock_llm(mocker):
     return mocker.patch("mcp_ai_worker.client.SubLLMClient.call_any")
 
 
-def test_draft_code_invalid_range(tmp_path, mock_llm):
+def test_draft_edit_invalid_range(tmp_path, mock_llm):
     test_file = tmp_path / "test.py"
     test_file.write_text("print('hi')\n", encoding="utf-8")
 
     # Start line > end line
-    result = draft_code(path=str(test_file), instruction="update", start_line=10, end_line=5, model="gemini")
+    result = draft_edit(path=str(test_file), instruction="update", start_line=10, end_line=5, model="gemini")
     assert "Error: start_line cannot be greater than end_line." in result
 
 
-def test_draft_code_missing_file(mock_llm):
+def test_draft_edit_missing_file(mock_llm):
     # Non-existent path
     mock_llm.return_value = "translated instruction"
-    result = draft_code(path="C:/non_existent_file_12345.py", instruction="update", model="gemini")
+    result = draft_edit(path="C:/non_existent_file_12345.py", instruction="update", model="gemini")
     assert "Error reading file." in result or "Error writing file." in result
 
 
-def test_draft_code_llm_failure(tmp_path, mock_llm):
+def test_draft_edit_llm_failure(tmp_path, mock_llm):
     test_file = tmp_path / "test.py"
     test_file.write_text("print('hi')\n", encoding="utf-8")
 
     # Simulate LLM API exception
     mock_llm.side_effect = Exception("API Key Expired")
 
-    result = draft_code(path=str(test_file), instruction="update", model="gemini")
+    result = draft_edit(path=str(test_file), instruction="update", model="gemini")
     assert "Drafting failed" in result
     assert "API Key Expired" in result
 
 
-def test_find_and_draft_edit_malformed_json(tmp_path, mock_llm):
+def test_find_target_malformed_json(tmp_path, mock_llm):
     proj_dir = tmp_path / "my_proj"
     proj_dir.mkdir()
     src_file = proj_dir / "main.py"
@@ -52,7 +52,7 @@ def test_find_and_draft_edit_malformed_json(tmp_path, mock_llm):
         patch("mcp_ai_worker.server.generate_repo_map", return_value="main.py: hello"),
         patch("mcp_ai_worker.server.load_prompt_template", return_value="{requirement}\n{repo_map}"),
     ):
-        result = find_and_draft_edit(requirement="update", target_dir=str(proj_dir))
+        result = find_target(requirement="update", target_dir=str(proj_dir))
 
     assert "Failed to parse target JSON" in result
 

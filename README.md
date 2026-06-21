@@ -85,8 +85,8 @@ The server will boot on `http://127.0.0.1:10300/mcp`.
 
 | Tool | Purpose |
 | :--- | :--- |
-| `draft_code` | Localized, high-speed code drafting. |
-| `find_and_draft_edit` | Directory-wide targeting and modification. |
+| `draft_edit` | Localized, high-speed code drafting. |
+| `find_target` | Directory-wide targeting and modification. |
 | `execute_command` | Executes terminal commands; returns concise, AI-ready log summaries. |
 | `fetch_and_summarize_url` | Summarizes web content without consuming excessive tokens. |
 | `generate_unit_tests` | AAA-pattern unit test generation. |

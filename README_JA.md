@@ -83,8 +83,8 @@ run.bat
 
 | ツール | 役割 |
 | :--- | :--- |
-| `draft_code` | 高速なコード下書き作成。 |
-| `find_and_draft_edit` | リポジトリ全体を対象としたターゲット修正。 |
+| `draft_edit` | 高速なコード下書き作成。 |
+| `find_target` | リポジトリ全体を対象としたターゲット修正。 |
 | `execute_command` | コマンド実行結果をAIエージェントに適した簡潔な要約に変換。 |
 | `fetch_and_summarize_url` | トークン消費を抑えつつWebコンテンツを要約。 |
 | `generate_unit_tests` | AAAパターンに基づいたユニットテスト生成。 |

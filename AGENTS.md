@@ -19,9 +19,9 @@
 
 ## Tooling Constraints
 
-- **Absolute Paths**: All file-based tools (`draft_code`, `find_and_draft_edit`) **require absolute paths**.
-- **`draft_code`**: Can create new files and directories automatically.
-- **`find_and_draft_edit`**: Uses `grep-ast` for repository-wide targeting.
+- **Absolute Paths**: All file-based tools (`draft_edit`, `find_target`) **require absolute paths**.
+- **`draft_edit`**: Can create new files and directories automatically.
+- **`find_target`**: Uses `grep-ast` for repository-wide targeting.
 - **`execute_command`**: Summarizes long logs using a sub-LLM to save context tokens.
 - **`fetch_and_summarize_url`**: Does not support Single Page Applications (SPAs).
 

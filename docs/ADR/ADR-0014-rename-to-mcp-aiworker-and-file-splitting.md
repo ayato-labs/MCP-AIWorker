@@ -18,7 +18,7 @@ We implemented the following changes:
    - [client.py](file:///c:/Users/saiha/My_Service/programing/MCP/Sub_cheap_McpAiAgent/mcp_ai_worker/client.py): Contains all LLM communication logic and model client classes (`SubLLMClient`).
    - [utils.py](file:///c:/Users/saiha/My_Service/programing/MCP/Sub_cheap_McpAiAgent/mcp_ai_worker/utils.py): Holds pure utility functions for code parsing, XML extraction, text translation, repository mapping, and file reads/writes.
    - [server.py](file:///c:/Users/saiha/My_Service/programing/MCP/Sub_cheap_McpAiAgent/mcp_ai_worker/server.py): Contains only the FastMCP instance, tool route declarations, and the entry point `main()`.
-3. **Backward Compatibility**: Configured `server.py` to import and re-export core classes (such as `SubLLMClient` and `draft_code`) to ensure existing test suites and third-party callers do not break.
+3. **Backward Compatibility**: Configured `server.py` to import and re-export core classes (such as `SubLLMClient` and `draft_edit`) to ensure existing test suites and third-party callers do not break.
 4. **Documentation Refresh**: Updated both English and Japanese README documents to use the new naming scheme and updated LLM references to point to Claude 5 (Fable 5) as the primary frontier model.
 
 ## Consequences

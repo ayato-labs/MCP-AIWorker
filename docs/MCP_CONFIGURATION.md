@@ -63,7 +63,7 @@ This tool follows a specific delegation model:
 - **Part-timer (Sub-LLM)**: Responsible for the tedious "heavy lifting" of typing code snippets or drafting files.
 
 ### Guidelines for the Architect (Main AI)
-1. **Delegate Early**: Use `draft_code` to generate the bulk of your code changes to save your own context tokens.
+1. **Delegate Early**: Use `draft_edit` to generate the bulk of your code changes to save your own context tokens.
 2. **Accept "Draft" Quality (叩き台)**: The output is a draft. It may contain minor logical gaps or missing imports. This is an intentional tradeoff for speed and cost.
 3. **Review & Refine**: After the tool returns, you **MUST** read the generated code and refine it to ensure it perfectly integrates with the existing system.
 

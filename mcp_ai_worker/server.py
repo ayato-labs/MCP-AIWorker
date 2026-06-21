@@ -37,18 +37,18 @@ mcp = FastMCP("MCP-AIWorker")
 
 @mcp.tool()
 @track_metrics
-def find_and_draft_edit(requirement: str, target_dir: str) -> str:
+def find_target(requirement: str, target_dir: str) -> str:
     """
-    [Role]: Automatically find and edit code across the directory.
-    [Use Case]: Refactoring, bug fixes, or implementing features across multiple files.
-    [Trigger]: When a task requires modifications to existing code or entities without manual file searching.
-    [Benefit for Architect]: Saves tokens and time by delegating file identification and draft generation to a sub-LLM.
+    [Role]: Automatically find the target file and entity for a given requirement.
+    [Use Case]: Identifying which file and block of code needs to be modified without manual searching.
+    [Trigger]: When a task requires modifications but the exact file or entity is unknown.
+    [Benefit for Architect]: Saves tokens and time by delegating repository exploration to a sub-LLM.
     """
     run_id = str(uuid.uuid4())
     start_total_time = time.perf_counter()
 
     with logger.contextualize(run_id=run_id):
-        logger.info(f"Starting auto-find and draft pipeline for dir: {target_dir}")
+        logger.info(f"Starting target search pipeline for dir: {target_dir}")
 
         # 1. Repo Map Generation
         repo_map = generate_repo_map(target_dir)
@@ -77,24 +77,16 @@ def find_and_draft_edit(requirement: str, target_dir: str) -> str:
         if not snippet:
             return f"Error: Could not find entity '{entity_name}' in file '{filepath}'."
 
-        # 4. Draft Generation and Writeback (Sub-LLM Task 2)
-        # Reusing draft_code internal logic via final_prompt
-        system_prompt = load_prompt_template("draft_system_prompt.txt")
-        if not system_prompt:
-            system_prompt = "You are a coding assistant providing a draft (叩き台) based on specific instructions."
-
-        final_prompt = f"{system_prompt}\n\nInstruction: {requirement}\n\nCurrent Block:\n{snippet}"
-
-        logger.info("Generating code draft...")
-        draft_code_raw = SubLLMClient.call_any(model_id, final_prompt, role_name="drafting", provider=provider)
-        cleaned_code = clean_code_output(draft_code_raw)
-
-        # Write back changes
-        msg = _write_back_changes(Path(filepath), cleaned_code, start_line, end_line, full_content, model_id)
-
         total_elapsed = time.perf_counter() - start_total_time
-        logger.info(f"{msg} (Total pipeline time: {total_elapsed:.2f}s)")
-        return msg
+        logger.info(f"Target found in {total_elapsed:.2f}s: {filepath} ({start_line}-{end_line})")
+
+        return json.dumps({
+            "filepath": filepath,
+            "entity_name": entity_name,
+            "start_line": start_line,
+            "end_line": end_line,
+            "snippet": snippet
+        }, indent=2)
 
 
 def is_command_safe(command: str) -> bool:
@@ -191,7 +183,7 @@ def execute_command(command: str, working_dir: Optional[str] = None, timeout_sec
 
 @mcp.tool()
 @track_metrics
-def draft_code(
+def draft_edit(
     path: str,
     instruction: str,
     start_line: Optional[int] = None,
@@ -212,7 +204,7 @@ def draft_code(
     start_total_time = time.perf_counter()
 
     with logger.contextualize(run_id=run_id):
-        logger.info(f"Started draft_code pipeline for path: {path}")
+        logger.info(f"Started draft_edit pipeline for path: {path}")
         try:
             # --- PRE-FLIGHT ---
             if start_line is not None and end_line is not None and start_line > end_line:

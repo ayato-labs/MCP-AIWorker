@@ -4,7 +4,7 @@
 Accepted
 
 ## Context
-Tooling that performs repository-wide scans, such as `find_and_draft_edit` and repository map generation, was inadvertently scanning unnecessary directories like virtual environments (`.venv`), version control (`.git`), caches (`__pycache__`, `.pytest_cache`, `.ruff_cache`), and egg-info. This led to:
+Tooling that performs repository-wide scans, such as `find_target` and repository map generation, was inadvertently scanning unnecessary directories like virtual environments (`.venv`), version control (`.git`), caches (`__pycache__`, `.pytest_cache`, `.ruff_cache`), and egg-info. This led to:
 1. Excessive token consumption when feeding file structures to LLMs.
 2. `400 INVALID_ARGUMENT` errors due to exceeding context window limits.
 3. Slow execution times for file scanning operations.

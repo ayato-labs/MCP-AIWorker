@@ -1,7 +1,8 @@
 import pytest
 import sys
+import json
 from unittest.mock import patch
-from mcp_ai_worker.server import draft_code, execute_command, find_and_draft_edit
+from mcp_ai_worker.server import draft_edit, execute_command, find_target
 
 
 @pytest.fixture
@@ -9,22 +10,22 @@ def mock_llm(mocker):
     return mocker.patch("mcp_ai_worker.client.SubLLMClient.call_any")
 
 
-def test_draft_code_integration_success(tmp_path, mock_llm):
+def test_draft_edit_integration_success(tmp_path, mock_llm):
     test_file = tmp_path / "app.py"
     test_file.write_text("def old_func():\n    pass\n", encoding="utf-8")
     mock_llm.return_value = "def new_func():\n    return True\n"
-    result = draft_code(path=str(test_file), instruction="Replace old_func with new_func", model="gemini")
+    result = draft_edit(path=str(test_file), instruction="Replace old_func with new_func", model="gemini")
     assert "Successfully wrote to" in result
     assert "def new_func():" in test_file.read_text()
     assert "def old_func():" not in test_file.read_text()
 
 
-def test_draft_code_integration_partial_success(tmp_path, mock_llm):
+def test_draft_edit_integration_partial_success(tmp_path, mock_llm):
     test_file = tmp_path / "app.py"
     content = "line 1\nline 2\nline 3\nline 4\n"
     test_file.write_text(content, encoding="utf-8")
     mock_llm.return_value = "print('new 2')\nprint('new 3')"
-    result = draft_code(path=str(test_file), instruction="Update middle", start_line=2, end_line=3, model="gemini")
+    result = draft_edit(path=str(test_file), instruction="Update middle", start_line=2, end_line=3, model="gemini")
     assert "Updated lines 2-3" in result
     assert test_file.read_text() == "line 1\nprint('new 2')\nprint('new 3')\nline 4\n"
 
@@ -47,17 +48,17 @@ def test_execute_command_integration_long_log_summarization(tmp_path, mock_llm):
     mock_llm.assert_called()
 
 
-def test_draft_code_integration_translation_trigger(tmp_path, mock_llm):
+def test_draft_edit_integration_translation_trigger(tmp_path, mock_llm):
     test_file = tmp_path / "app.py"
     test_file.write_text("pass", encoding="utf-8")
     instruction = "関数を追加して"
     mock_llm.side_effect = ["Add a function", "def mock(): pass"]
-    result = draft_code(path=str(test_file), instruction=instruction, model="gemini")
+    result = draft_edit(path=str(test_file), instruction=instruction, model="gemini")
     assert "Successfully wrote to" in result
     assert mock_llm.call_count == 2
 
 
-def test_find_and_draft_edit_integration(tmp_path, mock_llm):
+def test_find_target_and_edit_integration(tmp_path, mock_llm):
     # Setup a mock project
     proj_dir = tmp_path / "my_proj"
     proj_dir.mkdir()
@@ -78,7 +79,15 @@ def test_find_and_draft_edit_integration(tmp_path, mock_llm):
         patch("mcp_ai_worker.server.generate_repo_map", return_value="main.py: hello"),
         patch("mcp_ai_worker.server.load_prompt_template", return_value="{requirement}\n{repo_map}"),
     ):
-        result = find_and_draft_edit(requirement="Change hello to print hello world", target_dir=str(proj_dir))
+        target_json = find_target(requirement="Change hello to print hello world", target_dir=str(proj_dir))
+        target_info = json.loads(target_json)
+        result = draft_edit(
+            path=target_info["filepath"],
+            instruction="Change hello to print hello world",
+            start_line=target_info["start_line"],
+            end_line=target_info["end_line"],
+            model="gemini"
+        )
 
     assert "Updated lines" in result or "Successfully wrote" in result
     assert "print('hello world')" in src_file.read_text()

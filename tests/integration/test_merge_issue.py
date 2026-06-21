@@ -1,6 +1,6 @@
 import os
 import pytest
-from mcp_ai_worker.server import draft_code
+from mcp_ai_worker.server import draft_edit
 
 
 def test_calculator_add_divide(tmp_path, mocker):
@@ -40,11 +40,11 @@ def multiply(a, b):
     os.environ["AI_PROVIDER"] = "gemini"
     os.environ["DRAFTING_MODEL"] = "models/gemma-4-31b-it"
 
-    # 3. Call the draft_code function directly
+    # 3. Call the draft_edit function directly
     instruction = "Add a divide(a, b) function to this calculator. Return the complete updated file."
 
     try:
-        draft_code(
+        draft_edit(
             path=str(calc_file),
             instruction=instruction,
         )

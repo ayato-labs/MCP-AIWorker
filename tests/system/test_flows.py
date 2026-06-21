@@ -1,6 +1,7 @@
 import pytest
+import json
 from unittest.mock import patch
-from mcp_ai_worker.server import draft_code, find_and_draft_edit
+from mcp_ai_worker.server import draft_edit, find_target
 
 
 @pytest.fixture
@@ -19,7 +20,7 @@ def test_system_flow_full_rewrite(tmp_path, mock_llm):
     mock_llm.return_value = "print('new')\n"
 
     # WHEN: User requests a full rewrite
-    result = draft_code(path=str(test_file), instruction="Change 'old' to 'new'", model="gemini")
+    result = draft_edit(path=str(test_file), instruction="Change 'old' to 'new'", model="gemini")
 
     # THEN: The file is updated and the user is notified
     assert "Successfully wrote to" in result
@@ -42,7 +43,7 @@ def test_system_flow_add_method_to_class(tmp_path, mock_llm):
 
     # WHEN: User requests adding a method to the class (partial update)
     # Let's assume the Architect identifies the class range as lines 1-3
-    result = draft_code(
+    result = draft_edit(
         path=str(test_file),
         instruction="Add a save method to User class",
         start_line=1,
@@ -81,7 +82,15 @@ def test_system_flow_auto_find_and_fix(tmp_path, mock_llm):
         patch("mcp_ai_worker.server.load_prompt_template", return_value="{requirement}\n{repo_map}"),
     ):
         # WHEN: User asks to change the helper function
-        result = find_and_draft_edit(requirement="Change helper return value to 'helped'", target_dir=str(proj_dir))
+        target_json = find_target(requirement="Change helper return value to 'helped'", target_dir=str(proj_dir))
+        target_info = json.loads(target_json)
+        result = draft_edit(
+            path=target_info["filepath"],
+            instruction="Change helper return value to 'helped'",
+            start_line=target_info["start_line"],
+            end_line=target_info["end_line"],
+            model="gemini"
+        )
 
     # THEN: The correct file is updated
     assert "Updated lines" in result or "Successfully wrote" in result
